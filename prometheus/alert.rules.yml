@@ -1,0 +1,52 @@
+groups:
+  - name: billing_system_alerts
+    rules:
+      # Cảnh báo dịch vụ ngừng hoạt động
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Dịch vụ {{ $labels.job }} bị dừng hoạt động"
+          description: "Mục tiêu {{ $labels.instance }} thuộc job {{ $labels.job }} không phản hồi trong hơn 30 giây."
+
+      # Cảnh báo phát hiện tấn công dò mật khẩu (Brute-Force Attack)
+      - alert: BruteForceLoginDetected
+        expr: sum(rate(billing_user_logins_total{status="failed"}[1m])) * 60 > 5
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Phát hiện hành vi dò quét mật khẩu (Brute-Force Login)"
+          description: "Ghi nhận hơn 5 lần đăng nhập thất bại trong vòng 1 phút, nguy cơ tấn công brute-force."
+
+      # Cảnh báo tỷ lệ lỗi HTTP 5xx cao
+      - alert: HighHttp5xxRate
+        expr: sum(rate(billing_http_requests_total{status_code=~"5.."}[1m])) / sum(rate(billing_http_requests_total[1m])) * 100 > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Tỷ lệ lỗi HTTP 5xx vượt quá 5%"
+          description: "Hệ thống ghi nhận tỷ lệ lỗi máy chủ cao hơn mức cho phép."
+
+      # Cảnh báo độ trễ phản hồi HTTP cao
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, sum(rate(billing_http_request_duration_seconds_bucket[5m])) by (le)) > 1.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Độ trễ phản hồi (p95 latency) cao > 1.5 giây"
+          description: "95% requests đang mất hơn 1.5 giây để xử lý."
+
+      # Cảnh báo kết nối PostgreSQL cao
+      - alert: HighPostgresConnections
+        expr: pg_stat_activity_count > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Số lượng kết nối vào PostgreSQL sắp chạm ngưỡng giới hạn"
+          description: "Postgres đang có hơn 80 active connections."

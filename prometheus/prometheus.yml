@@ -1,0 +1,52 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  scrape_timeout: 5s
+
+rule_files:
+  - "alert.rules.yml"
+
+scrape_configs:
+  # 1. Billing Web Application (Node.js & Business Metrics)
+  - job_name: "billing-app"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["billing-app:3000"]
+        labels:
+          application: "billing-management-system"
+          environment: "production"
+
+  # 2. Database Metrics (PostgreSQL via postgres-exporter)
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels:
+          service: "postgresql-database"
+          db_name: "billing_db"
+
+  # 3. Web Server Metrics (Nginx via nginx-prometheus-exporter)
+  - job_name: "nginx"
+    static_configs:
+      - targets: ["nginx-exporter:9113"]
+        labels:
+          service: "nginx-reverse-proxy"
+
+  # 4. Container Resource Metrics (cAdvisor)
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          service: "docker-container-monitoring"
+
+  # 5. Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # 6. Host System Metrics (Node Exporter)
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          nodename: "billing-host"
+
