@@ -225,6 +225,50 @@ services:
       - monitoring-net
 
   # ====================================================================
+  # 10. LOGGING - Grafana Loki (Log Aggregation Server)
+  # ====================================================================
+  loki:
+    image: grafana/loki:latest
+    container_name: billing-loki
+    restart: unless-stopped
+    user: "10001:10001"
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 384m
+    cpus: 0.8
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+    networks:
+      - monitoring-net
+
+  # ====================================================================
+  # 11. LOGGING - Promtail (Log Shipper Agent)
+  # ====================================================================
+  promtail:
+    image: grafana/promtail:latest
+    container_name: billing-promtail
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    cpus: 0.5
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml:ro
+      - app_logs:/var/log/app:ro
+      - nginx_logs:/var/log/nginx:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monitoring-net
+    depends_on:
+      - loki
+
+  # ====================================================================
   # 12. EXPORTER - Prometheus Node Exporter (Host System Metrics)
   # ====================================================================
   node-exporter:
@@ -248,7 +292,6 @@ services:
     networks:
       - monitoring-net
 
-
 networks:
   frontend-net:
     driver: bridge
@@ -264,3 +307,4 @@ volumes:
   nginx_logs:
   prometheus_data:
   grafana_data:
+  loki_data:
