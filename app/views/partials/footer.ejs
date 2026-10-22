@@ -1,0 +1,131 @@
+    </div>
+  </main>
+
+  <footer class="app-footer mt-auto border-top no-print">
+    <!-- Main Footer Body -->
+    <div class="footer-top py-5">
+      <div class="container-fluid px-4 px-lg-5">
+        <div class="row g-4">
+          <!-- Col 1: Brand & Overview -->
+          <div class="col-12 col-lg-4 col-md-6">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <div class="brand-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                <i class="bi bi-receipt-cutoff fs-5"></i>
+              </div>
+              <span class="fs-5 fw-bold text-dark">BillingMaster <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace ms-1" style="font-size: 0.65rem;">ENTERPRISE</span></span>
+            </div>
+            <p class="text-muted small mb-3 pe-lg-3 lh-base">
+              Hệ sinh thái Quản trị & Triển khai Phần mềm Quản lý Hóa đơn, Đối soát Dòng tiền và Tự động hóa Thanh toán Doanh nghiệp chuẩn DevOps & Microservices.
+            </p>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+              <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1.5 small">
+                <span class="status-indicator-dot"></span>
+                <span>Hệ thống trực tuyến: <strong>99.98%</strong></span>
+              </span>
+              <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1.5 font-monospace small">
+                v2.4.0-prod
+              </span>
+            </div>
+            <div class="text-muted small">
+              <i class="bi bi-geo-alt me-1 text-primary"></i> Tầng 12, Innovation Tower, Khu CNC, Hà Nội<br>
+              <i class="bi bi-envelope me-1 text-primary"></i> contact@billingmaster.vn • Hotline: 1900 6868
+            </div>
+          </div>
+
+          <!-- Col 2: Phân hệ Nghiệp vụ (Core Modules) -->
+          <div class="col-6 <%= (locals.currentUser && locals.currentUser.role === 'ADMIN') ? 'col-lg-2' : 'col-lg-3' %> col-md-3">
+            <h6 class="text-uppercase fw-bold text-dark small mb-3 tracking-wide">
+              <i class="bi bi-grid me-1 text-primary"></i> Nghiệp vụ
+            </h6>
+            <ul class="list-unstyled footer-links small mb-0 d-flex flex-column gap-2">
+              <% if (!locals.currentUser || locals.currentUser.role !== 'CUSTOMER') { %>
+              <li><a href="/" class="text-decoration-none text-muted"><i class="bi bi-chevron-right me-1 text-secondary opacity-50"></i> Bảng điều khiển</a></li>
+              <% } %>
+              <li><a href="/invoices" class="text-decoration-none text-muted"><i class="bi bi-chevron-right me-1 text-secondary opacity-50"></i> <%= (locals.currentUser && locals.currentUser.role === 'CUSTOMER') ? 'Hóa đơn của tôi' : 'Quản lý Hóa đơn VAT' %></a></li>
+              <% if (!locals.currentUser || locals.currentUser.role !== 'CUSTOMER') { %>
+              <li><a href="/invoices/create" class="text-decoration-none text-muted"><i class="bi bi-chevron-right me-1 text-secondary opacity-50"></i> Lập hóa đơn mới</a></li>
+              <li><a href="/customers" class="text-decoration-none text-muted"><i class="bi bi-chevron-right me-1 text-secondary opacity-50"></i> Khách hàng & Đối tác</a></li>
+              <li><a href="/payments" class="text-decoration-none text-muted"><i class="bi bi-chevron-right me-1 text-secondary opacity-50"></i> Giao dịch & Dòng tiền</a></li>
+              <% } %>
+            </ul>
+          </div>
+
+          <!-- Col 3: Hạ tầng & Giám sát (DevOps Observability - Chỉ hiển thị cho Quản trị viên ADMIN) -->
+          <% if (locals.currentUser && locals.currentUser.role === 'ADMIN') { %>
+          <div class="col-6 col-lg-3 col-md-3">
+            <h6 class="text-uppercase fw-bold text-dark small mb-3 tracking-wide">
+              <i class="bi bi-speedometer2 me-1 text-primary"></i> Vận hành & Giám sát
+            </h6>
+            <ul class="list-unstyled footer-links small mb-0 d-flex flex-column gap-2">
+              <li><a href="/system-status" class="text-decoration-none text-muted"><i class="bi bi-hdd-network me-1 text-primary"></i> Trạng thái 11 Containers</a></li>
+              <li><a href="http://localhost:3001" target="_blank" class="text-decoration-none text-muted"><i class="bi bi-bar-chart-line me-1 text-warning"></i> Grafana Dashboards (:3001) <i class="bi bi-box-arrow-up-right font-monospace small"></i></a></li>
+              <li><a href="http://localhost:9090" target="_blank" class="text-decoration-none text-muted"><i class="bi bi-activity me-1 text-danger"></i> Prometheus Metrics (:9090) <i class="bi bi-box-arrow-up-right font-monospace small"></i></a></li>
+              <li><a href="http://localhost:5050" target="_blank" class="text-decoration-none text-muted"><i class="bi bi-database me-1 text-info"></i> Quản trị pgAdmin 4 (:5050) <i class="bi bi-box-arrow-up-right font-monospace small"></i></a></li>
+              <li><a href="/api/health" target="_blank" class="text-decoration-none text-muted"><i class="bi bi-heart-pulse me-1 text-success"></i> Healthcheck API Endpoint</a></li>
+            </ul>
+          </div>
+          <% } %>
+
+          <!-- Col 4: Bảo mật & Hạ tầng công nghệ (Security & Architecture Badges) -->
+          <div class="col-12 <%= (locals.currentUser && locals.currentUser.role === 'ADMIN') ? 'col-lg-3' : 'col-lg-5' %> col-md-6">
+            <h6 class="text-uppercase fw-bold text-dark small mb-3 tracking-wide">
+              <i class="bi bi-shield-lock me-1 text-primary"></i> Tiêu Chuẩn Bảo Mật
+            </h6>
+            <div class="footer-badges d-flex flex-column gap-2">
+              <div class="footer-badge-card p-2 rounded-2 border bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-shield-check text-success fs-5"></i>
+                <div class="lh-sm">
+                  <div class="fw-semibold small text-dark">Nginx SSL / TLS 1.3</div>
+                  <div class="text-muted" style="font-size: 0.72rem;">HSTS, CSP & Rate Limiting (Anti-DoS)</div>
+                </div>
+              </div>
+
+              <div class="footer-badge-card p-2 rounded-2 border bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-box-seam text-primary fs-5"></i>
+                <div class="lh-sm">
+                  <div class="fw-semibold small text-dark">Docker Non-Root UID 10001</div>
+                  <div class="text-muted" style="font-size: 0.72rem;">Cô lập 3 mạng: frontend / backend / monitor</div>
+                </div>
+              </div>
+
+              <div class="footer-badge-card p-2 rounded-2 border bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-journal-code text-warning fs-5"></i>
+                <div class="lh-sm">
+                  <div class="fw-semibold small text-dark">Loki & Promtail LogQL</div>
+                  <div class="text-muted" style="font-size: 0.72rem;">Centralized JSON logs & Audit Trail</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar (Sub-footer) -->
+    <div class="footer-bottom py-3 bg-light border-top">
+      <div class="container-fluid px-4 px-lg-5 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 text-muted small">
+        <div class="d-flex align-items-center gap-2">
+          <span>&copy; 2026 <strong>BillingMaster Enterprise Platform</strong>. All rights reserved.</span>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <span class="d-inline-flex align-items-center gap-1"><i class="bi bi-check2-circle text-success"></i> ISO/IEC 27001 Ready</span>
+          <span class="text-secondary opacity-50">•</span>
+          <span class="d-inline-flex align-items-center gap-1"><i class="bi bi-shield-shaded text-primary"></i> OWASP Top 10 Hardened</span>
+          <span class="text-secondary opacity-50">•</span>
+          <span class="d-inline-flex align-items-center gap-1"><i class="bi bi-terminal text-dark"></i> CIS Docker Benchmark</span>
+          <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2 ms-lg-2 back-to-top-btn" title="Lên đầu trang">
+            <i class="bi bi-arrow-up"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <!-- Custom App Script -->
+  <script src="/js/app.js"></script>
+</body>
+</html>

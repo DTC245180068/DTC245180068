@@ -1,0 +1,709 @@
+<!-- ==================================================================== -->
+<!-- CUSTOMER FINTECH PAYMENT MODAL (CỔNG THANH TOÁN TRỰC TUYẾN 24/7) -->
+<!-- ==================================================================== -->
+<div class="modal fade" id="customerPaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white border-bottom border-secondary border-opacity-25 py-3">
+        <div class="d-flex align-items-center gap-2">
+          <div class="brand-icon bg-success text-white">
+            <i class="bi bi-credit-card-2-front"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Cổng Thanh toán Trực tuyến BillingMaster 24/7</h5>
+            <small class="text-white-50">Thanh toán an toàn, tức thì & nhận biên lai điện tử có giá trị pháp lý</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Invoice summary box -->
+        <div class="p-3 rounded-4 bg-light border mb-4">
+          <div class="row align-items-center">
+            <div class="col-md-7">
+              <span class="text-muted small text-uppercase fw-bold">Thông tin Hóa đơn thanh toán</span>
+              <div class="d-flex align-items-center gap-2 mt-1">
+                <h4 class="fw-bold font-monospace text-primary mb-0" id="cpModalInvoiceNumber">INV-2026-XXXX</h4>
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" id="cpModalStatusBadge">Chờ thanh toán</span>
+              </div>
+              <div class="small text-muted mt-1">
+                Đơn vị thụ hưởng: <strong>CÔNG TY CỔ PHẦN CÔNG NGHỆ BILLINGMASTER</strong>
+              </div>
+            </div>
+            <div class="col-md-5 text-md-end mt-3 mt-md-0">
+              <span class="text-muted small text-uppercase fw-bold">Số tiền cần thanh toán</span>
+              <h3 class="fw-bold text-success font-monospace mb-0" id="cpModalAmountDisplay">0 ₫</h3>
+              <small class="text-muted">Tổng giá trị HĐ: <span id="cpModalTotalDisplay">0 ₫</span></small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Tabs -->
+        <ul class="nav nav-pills nav-fill gap-2 mb-3" id="paymentMethodTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2" id="tab-vietqr" data-bs-toggle="pill" data-bs-target="#content-vietqr" type="button">
+              <i class="bi bi-qr-code-scan"></i>
+              <span>VietQR Chuyển khoản (Khuyên dùng)</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2" id="tab-card" data-bs-toggle="pill" data-bs-target="#content-card" type="button">
+              <i class="bi bi-credit-card"></i>
+              <span>Thẻ Quốc tế (Visa / Master)</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2" id="tab-ewallet" data-bs-toggle="pill" data-bs-target="#content-ewallet" type="button">
+              <i class="bi bi-phone"></i>
+              <span>Ví MoMo / ZaloPay</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="paymentMethodContent">
+          <!-- TAB 1: VIETQR -->
+          <div class="tab-pane fade show active p-3 rounded-4 border bg-white" id="content-vietqr">
+            <div class="row align-items-center g-4">
+              <div class="col-md-5 text-center">
+                <div class="p-3 border rounded-4 bg-light d-inline-block shadow-sm">
+                  <!-- QR Image -->
+                  <img id="vietqrImage" src="" alt="VietQR Thanh Toán" class="img-fluid rounded-3" style="max-width: 220px; min-height: 220px; object-fit: contain;">
+                  <div class="small fw-bold text-primary mt-2">
+                    <i class="bi bi-upc-scan me-1"></i>Quét mã QR bằng App Ngân hàng
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <h6 class="fw-bold text-dark mb-3">Thông tin Chuyển khoản Ngân hàng (NAPAS 24/7):</h6>
+                <table class="table table-sm table-borderless small mb-3">
+                  <tr>
+                    <td class="text-muted" style="width: 140px;">Ngân hàng:</td>
+                    <td class="fw-bold text-dark">Ngân hàng TMCP Ngoại thương Việt Nam (Vietcombank)</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Số tài khoản:</td>
+                    <td class="d-flex align-items-center gap-2">
+                      <span class="font-monospace fw-bold fs-6 text-primary" id="vcbAccountNumber">1018889999</span>
+                      <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 btn-copy" data-copy-target="vcbAccountNumber" title="Sao chép">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Chủ tài khoản:</td>
+                    <td class="fw-bold">CONG TY CO PHAN CONG NGHE BILLINGMASTER</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Số tiền thanh toán:</td>
+                    <td class="d-flex align-items-center gap-2">
+                      <span class="font-monospace fw-bold fs-6 text-success" id="qrTransferAmount">0 ₫</span>
+                      <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 btn-copy" data-copy-target="qrTransferAmountRaw" title="Sao chép">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Nội dung chuyển:</td>
+                    <td class="d-flex align-items-center gap-2">
+                      <span class="font-monospace fw-bold text-danger bg-danger-subtle px-2 py-0.5 rounded" id="qrTransferContent">THANHTOAN</span>
+                      <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 btn-copy" data-copy-target="qrTransferContent" title="Sao chép">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </table>
+                <div class="alert alert-info py-2 px-3 small rounded-3 mb-0">
+                  <i class="bi bi-info-circle me-1"></i>Hệ thống tự động kích hoạt hóa đơn và phát hành biên lai điện tử ngay sau khi giao dịch thành công.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: CREDIT / DEBIT CARD -->
+          <div class="tab-pane fade p-3 rounded-4 border bg-white" id="content-card">
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="p-3 rounded-3 bg-light border d-flex justify-content-between align-items-center">
+                  <span class="small fw-semibold text-muted">Hỗ trợ các thẻ:</span>
+                  <div class="d-flex gap-2 fs-4 text-primary">
+                    <i class="bi bi-credit-card-2-front"></i>
+                    <i class="bi bi-shield-lock-fill text-success"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Số thẻ (16 chữ số)</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                  <input type="text" class="form-control font-monospace" placeholder="4123 4567 8901 2345" value="4123 4567 8901 2345">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Tên chủ thẻ</label>
+                <input type="text" class="form-control text-uppercase" placeholder="NGUYEN VAN A" value="<%= locals.customerProfile ? locals.customerProfile.name : 'DOANH NGHIEP KHACH HANG' %>">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Hết hạn</label>
+                <input type="text" class="form-control font-monospace text-center" placeholder="MM/YY" value="12/28">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Mã CVV</label>
+                <input type="password" class="form-control font-monospace text-center" placeholder="•••" maxlength="4" value="888">
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: EWALLET -->
+          <div class="tab-pane fade p-3 rounded-4 border bg-white" id="content-ewallet">
+            <div class="text-center py-3">
+              <div class="d-flex justify-content-center gap-3 mb-3">
+                <span class="badge bg-danger p-2 fs-6"><i class="bi bi-wallet2 me-1"></i>MoMo</span>
+                <span class="badge bg-primary p-2 fs-6"><i class="bi bi-chat-square-dots me-1"></i>ZaloPay</span>
+                <span class="badge bg-warning text-dark p-2 fs-6"><i class="bi bi-shop me-1"></i>ShopeePay</span>
+              </div>
+              <p class="text-muted small">Cổng thanh toán liên kết qua ứng dụng Ví điện tử. Hệ thống sẽ cấp mã giao dịch tức thì sau khi quét.</p>
+              <div class="p-3 border rounded-3 bg-light d-inline-block shadow-sm">
+                <i class="bi bi-qr-code fs-1 text-primary"></i>
+                <div class="small fw-semibold mt-1">Quét mã bằng ứng dụng ví MoMo / ZaloPay</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden input for raw amount to copy -->
+        <input type="hidden" id="qrTransferAmountRaw" value="0">
+      </div>
+
+      <div class="modal-footer bg-light border-top py-3">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm fw-bold d-flex align-items-center gap-2" id="btnConfirmCustomerPayment">
+          <i class="bi bi-shield-check"></i>
+          <span>Xác nhận Thanh toán & Nhận Biên lai Ngay</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- BIÊN LAI THU TIỀN ĐIỆN TỬ (ELECTRONIC RECEIPT MODAL) -->
+<!-- ==================================================================== -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header bg-success text-white border-0 py-3">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-patch-check-fill fs-4"></i>
+          <h5 class="modal-title fw-bold mb-0">Biên lai Thu tiền Điện tử (Electronic Receipt)</h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" onclick="handleReceiptModalClose()"></button>
+      </div>
+
+      <div class="modal-body p-4 p-md-5" id="printableReceiptArea">
+        <div class="receipt-card border p-4 rounded-4 bg-white shadow-sm position-relative">
+          <!-- Verified Watermark Stamp -->
+          <div class="receipt-stamp-badge position-absolute top-0 end-0 m-4 text-center">
+            <div class="border border-3 border-success text-success fw-bold p-2 rounded-circle d-inline-flex flex-column align-items-center justify-content-center" style="width: 90px; height: 90px; transform: rotate(-12deg); opacity: 0.85;">
+              <i class="bi bi-check-circle-fill fs-5"></i>
+              <span style="font-size: 0.65rem; line-height: 1;">PAID</span>
+              <span style="font-size: 0.55rem;">BILLINGMASTER</span>
+            </div>
+          </div>
+
+          <!-- Seller header -->
+          <div class="border-bottom pb-3 mb-3">
+            <h5 class="fw-bold text-primary mb-1">CÔNG TY CỔ PHẦN CÔNG NGHỆ BILLINGMASTER</h5>
+            <div class="text-muted small">Tầng 12, Tòa nhà Innovation, Khu Công nghệ cao, Hà Nội | MST: <strong>0108889999</strong></div>
+            <div class="text-muted small">Hotline: (024) 7300 8888 | Email: billing@billingmaster.vn</div>
+          </div>
+
+          <!-- Receipt Title -->
+          <div class="text-center my-3">
+            <h3 class="fw-bold text-dark mb-1">BIÊN LAI THU TIỀN ĐIỆN TỬ</h3>
+            <div class="font-monospace text-muted small">Mã số biên lai: <strong class="text-success fs-6" id="rcptPaymentCode">PAY-2026-XXXX</strong></div>
+            <div class="text-muted small">Thời gian giao dịch: <span id="rcptPaymentDate">--/--/----</span></div>
+          </div>
+
+          <!-- Transaction details table -->
+          <table class="table table-bordered align-middle my-4 small">
+            <tr>
+              <td class="bg-light text-muted fw-semibold" style="width: 180px;">Đơn vị nộp tiền:</td>
+              <td class="fw-bold" id="rcptCustomerName">---</td>
+            </tr>
+            <tr>
+              <td class="bg-light text-muted fw-semibold">Mã số thuế / Mã KH:</td>
+              <td class="font-monospace" id="rcptCustomerMeta">---</td>
+            </tr>
+            <tr>
+              <td class="bg-light text-muted fw-semibold">Địa chỉ:</td>
+              <td id="rcptCustomerAddress">---</td>
+            </tr>
+            <tr>
+              <td class="bg-light text-muted fw-semibold">Thanh toán cho Hóa đơn:</td>
+              <td class="font-monospace fw-bold text-primary" id="rcptInvoiceNumber">---</td>
+            </tr>
+            <tr>
+              <td class="bg-light text-muted fw-semibold">Phương thức thanh toán:</td>
+              <td id="rcptPaymentMethod"><span class="badge bg-secondary">Chuyển khoản</span></td>
+            </tr>
+            <tr>
+              <td class="bg-light text-muted fw-semibold">Mã tham chiếu / Số GD:</td>
+              <td class="font-monospace text-muted" id="rcptReferenceNo">---</td>
+            </tr>
+            <tr>
+              <td class="bg-light text-muted fw-semibold fs-6 text-dark">Số tiền đã thu:</td>
+              <td class="font-monospace fw-bold fs-5 text-success" id="rcptAmountDisplay">0 ₫</td>
+            </tr>
+            <tr>
+              <td class="bg-light text-muted fw-semibold">Ghi chú giao dịch:</td>
+              <td class="text-muted" id="rcptNotes">---</td>
+            </tr>
+          </table>
+
+          <!-- Signatures block -->
+          <div class="row text-center mt-4 pt-2">
+            <div class="col-6">
+              <p class="fw-bold mb-1 small text-uppercase">NGƯỜI NỘP TIỀN</p>
+              <small class="text-muted">(Ký xác nhận điện tử)</small>
+              <div style="height: 60px;" class="d-flex align-items-center justify-content-center text-muted small fst-italic">
+                Đã xác thực tài khoản
+              </div>
+            </div>
+            <div class="col-6">
+              <p class="fw-bold mb-1 small text-uppercase">ĐƠN VỊ THU TIỀN</p>
+              <small class="text-muted">(Chữ ký số & Chứng thư điện tử)</small>
+              <div style="height: 60px;" class="d-flex align-items-center justify-content-center text-success small fw-bold">
+                <i class="bi bi-shield-fill-check me-1"></i>HỆ THỐNG BILLINGMASTER
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-light border-top py-3">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" onclick="handleReceiptModalClose()">Đóng</button>
+        <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-1.5" onclick="printReceiptArea()">
+          <i class="bi bi-printer"></i>
+          <span>In Biên lai / Lưu PDF</span>
+        </button>
+        <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm fw-semibold d-flex align-items-center gap-1.5" id="btnCompleteAndReload" onclick="handleCompleteAndReload()">
+          <i class="bi bi-check2-all"></i>
+          <span>Hoàn tất & Cập nhật</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- QUẢN LÝ HỒ SƠ KHÁCH HÀNG (CUSTOMER PROFILE MANAGEMENT MODAL) -->
+<!-- ==================================================================== -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white border-bottom border-secondary border-opacity-25 py-3">
+        <div class="d-flex align-items-center gap-2">
+          <div class="brand-icon bg-primary text-white">
+            <i class="bi bi-building-gear"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0">Quản lý Hồ sơ Doanh nghiệp & Địa chỉ nhận Hóa đơn</h5>
+            <small class="text-white-50">Cập nhật thông tin xuất hóa đơn GTGT và thông tin liên lạc chính xác</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="form-update-customer-profile">
+        <input type="hidden" name="customer_id" value="<%= locals.customerProfile ? locals.customerProfile.id : (locals.currentUser ? (locals.currentUser.customer_id || '') : '') %>">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Mã khách hàng</label>
+              <input type="text" class="form-control font-monospace bg-light" value="<%= locals.customerProfile ? locals.customerProfile.code : '' %>" readonly disabled>
+              <small class="text-muted">Mã định danh do hệ thống cấp</small>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label small fw-bold">Tên Doanh nghiệp / Đơn vị mua hàng <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="name" required value="<%= locals.customerProfile ? locals.customerProfile.name : '' %>" placeholder="Ví dụ: Công ty TNHH Giải pháp Phần mềm...">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Mã số thuế (Tax ID)</label>
+              <input type="text" class="form-control font-monospace" name="tax_id" value="<%= locals.customerProfile ? (locals.customerProfile.tax_id || '') : '' %>" placeholder="Ví dụ: 0102345678">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Người đại diện / Người liên hệ</label>
+              <input type="text" class="form-control" name="contact_person" value="<%= locals.currentUser ? (locals.currentUser.full_name || '') : '' %>" placeholder="Họ và tên người đại diện">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Email nhận Hóa đơn điện tử <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" name="email" required value="<%= locals.customerProfile ? (locals.customerProfile.email || '') : '' %>" placeholder="ketoan@doanhnghiep.vn">
+              <small class="text-muted">Hóa đơn điện tử và biên lai sẽ gửi về email này</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Số điện thoại liên hệ</label>
+              <input type="text" class="form-control" name="phone" value="<%= locals.customerProfile ? (locals.customerProfile.phone || '') : '' %>" placeholder="02438889999 / 0988xxxxxx">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small fw-bold">Địa chỉ nhận hóa đơn chứng từ & Trụ sở <span class="text-danger">*</span></label>
+              <textarea class="form-control" name="address" rows="2" required placeholder="Địa chỉ đăng ký kinh doanh và giao nhận hóa đơn GTGT..."><%= locals.customerProfile ? (locals.customerProfile.address || '') : '' %></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light border-top py-3">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+            <i class="bi bi-save me-1"></i>Lưu Thay Đổi Hồ Sơ
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- ĐỔI MẬT KHẨU TÀI KHOẢN KHÁCH HÀNG (CHANGE PASSWORD MODAL) -->
+<!-- ==================================================================== -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white border-bottom border-secondary border-opacity-25 py-3">
+        <h5 class="modal-title fw-bold mb-0"><i class="bi bi-key-fill text-warning me-2"></i>Đổi Mật Khẩu Tài Khoản</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-customer-change-password">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Mật khẩu hiện tại</label>
+            <input type="password" class="form-control" name="current_password" required placeholder="Nhập mật khẩu đang dùng">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Mật khẩu mới</label>
+            <input type="password" class="form-control" name="new_password" required minlength="6" placeholder="Tối thiểu 6 ký tự">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Xác nhận mật khẩu mới</label>
+            <input type="password" class="form-control" name="confirm_password" required minlength="6" placeholder="Nhập lại mật khẩu mới">
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-top py-3">
+          <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">Xác nhận đổi mật khẩu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+let isPaymentJustCompleted = false;
+
+function handleCompleteAndReload() {
+  const btn = document.getElementById('btnCompleteAndReload');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1.5" role="status"></span>Đang cập nhật...';
+  }
+
+  try {
+    sessionStorage.setItem('flash_toast', JSON.stringify({
+      title: 'Thanh toán hoàn tất',
+      message: 'Giao dịch thanh toán đã được ghi nhận và số liệu công nợ đã được cập nhật thành công!',
+      type: 'success'
+    }));
+  } catch (e) {}
+
+  const rcptModalEl = document.getElementById('receiptModal');
+  if (rcptModalEl && window.bootstrap && window.bootstrap.Modal) {
+    try {
+      const m = window.bootstrap.Modal.getInstance(rcptModalEl) || window.bootstrap.Modal.getOrCreateInstance(rcptModalEl);
+      if (m) m.hide();
+    } catch (e) {}
+  }
+
+  document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+  document.body.classList.remove('modal-open');
+  document.body.style.removeProperty('overflow');
+  document.body.style.removeProperty('padding-right');
+
+  setTimeout(() => {
+    window.location.href = window.location.pathname + window.location.search;
+  }, 120);
+}
+
+function handleReceiptModalClose() {
+  const rcptModalEl = document.getElementById('receiptModal');
+  if (rcptModalEl && window.bootstrap && window.bootstrap.Modal) {
+    try {
+      const m = window.bootstrap.Modal.getInstance(rcptModalEl) || window.bootstrap.Modal.getOrCreateInstance(rcptModalEl);
+      if (m) m.hide();
+    } catch (e) {}
+  }
+  document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+  document.body.classList.remove('modal-open');
+  document.body.style.removeProperty('overflow');
+  document.body.style.removeProperty('padding-right');
+
+  if (typeof isPaymentJustCompleted !== 'undefined' && isPaymentJustCompleted) {
+    setTimeout(() => {
+      window.location.href = window.location.pathname + window.location.search;
+    }, 120);
+  }
+}
+
+// Print printable receipt area
+function printReceiptArea() {
+  const areaEl = document.getElementById('printableReceiptArea');
+  if (!areaEl) return;
+  const content = areaEl.innerHTML;
+  const printWindow = window.open('', '', 'width=800,height=900');
+  if (!printWindow) {
+    if (typeof showToast === 'function') {
+      showToast('Cảnh báo popup', 'Vui lòng cho phép popup trên trình duyệt để in biên lai!', 'warning');
+    } else {
+      alert('Vui lòng cho phép mở popup trên trình duyệt để xem và in biên lai!');
+    }
+    return;
+  }
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Biên lai Thu tiền Điện tử - BillingMaster</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+      <style>
+        body { padding: 30px; font-family: 'Inter', sans-serif; background: #fff; }
+        .receipt-card { border: 1px solid #dee2e6; border-radius: 12px; padding: 25px; }
+        .receipt-stamp-badge { opacity: 0.9; }
+      </style>
+    </head>
+    <body>
+      ${content}
+      <script>
+        window.onload = function() { window.print(); }
+      <\/script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// Handler xem chi tiết Phiếu yêu cầu hóa đơn (Dạng Form Thông báo)
+async function openCustomerRequestModal(requestId) {
+  const modalEl = document.getElementById('modalCustomerRequestDetail');
+  if (!modalEl) return;
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+
+  const loadingEl = document.getElementById('crdLoading');
+  const contentEl = document.getElementById('crdContent');
+  loadingEl.style.display = 'block';
+  contentEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`/api/invoice-requests/${requestId}`);
+    const data = await res.json();
+    if (!data.success) {
+      loadingEl.innerHTML = `<div class="alert alert-danger py-2 small">${data.message || 'Không thể tải thông tin yêu cầu'}</div>`;
+      return;
+    }
+
+    const r = data.data;
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'block';
+
+    document.getElementById('crdReqCode').textContent = r.request_code;
+    document.getElementById('crdIssueDate').textContent = new Date(r.issue_date).toLocaleDateString('vi-VN');
+    document.getElementById('crdDueDate').textContent = new Date(r.due_date).toLocaleDateString('vi-VN');
+    document.getElementById('crdNotes').textContent = r.notes || 'Không có ghi chú thêm';
+
+    // Status Banner Form
+    const bannerBox = document.getElementById('crdStatusBanner');
+    if (r.status === 'REJECTED') {
+      bannerBox.innerHTML = `
+        <div class="card border-danger border-2 mb-3 bg-danger bg-opacity-10 rounded-4 overflow-hidden">
+          <div class="card-header bg-danger text-white py-2 px-3 fw-bold small d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-x-octagon-fill me-1"></i> THÔNG BÁO TỪ CHỐI DUYỆT HÓA ĐƠN</span>
+            <span class="badge bg-white text-danger font-monospace">KHÔNG DUYỆT</span>
+          </div>
+          <div class="card-body p-3 bg-white">
+            <div class="small fw-bold text-danger mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>Lý do từ chối từ Ban Kế toán:</div>
+            <div class="fs-6 fw-bold text-danger ps-2 border-start border-3 border-danger mb-2">"${r.admin_notes || 'Yêu cầu không được phê duyệt'}"</div>
+            <div class="small text-muted mb-2">
+              <i class="bi bi-person-fill-slash me-1"></i>Người từ chối: <strong>${r.reviewer_name || 'Kế toán viên'}</strong> &nbsp;|&nbsp;
+              <i class="bi bi-clock-history me-1"></i>Thời gian: ${new Date(r.reviewed_at || r.updated_at).toLocaleString('vi-VN')}
+            </div>
+            <div class="alert alert-light border small text-muted mb-2 py-1.5 px-2">
+              <i class="bi bi-info-circle text-primary me-1"></i> <strong>Khẳng định an toàn:</strong> Hóa đơn <strong>hoàn toàn KHÔNG được tạo</strong> trên hệ thống. Quý khách chưa phát sinh công nợ cho yêu cầu này.
+            </div>
+            <a href="/portal/request-invoice?copy_from=${r.id}" class="btn btn-danger btn-sm rounded-pill px-3 shadow-xs">
+              <i class="bi bi-arrow-repeat me-1"></i>Chỉnh sửa và gửi lại yêu cầu mới
+            </a>
+          </div>
+        </div>
+      `;
+    } else if (r.status === 'APPROVED') {
+      bannerBox.innerHTML = `
+        <div class="card border-success border-2 mb-3 bg-success bg-opacity-10 rounded-4 overflow-hidden">
+          <div class="card-header bg-success text-white py-2 px-3 fw-bold small d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-check-circle-fill me-1"></i> THÔNG BÁO PHÊ DUYỆT: HÓA ĐƠN ĐÃ ĐƯỢC PHÁT HÀNH!</span>
+            <span class="badge bg-white text-success font-monospace">ĐÃ DUYỆT</span>
+          </div>
+          <div class="card-body p-3 bg-white">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="small fw-bold text-success text-uppercase">Hóa đơn GTGT chính thức:</span>
+              <a href="/invoices/${r.invoice_id}" class="badge bg-primary text-white font-monospace fs-6 text-decoration-none px-2.5 py-1">
+                ${r.linked_invoice_number || 'INV-2026-XXXX'}
+              </a>
+            </div>
+            <div class="small text-success-emphasis mb-2">
+              <i class="bi bi-chat-quote-fill me-1"></i>Ghi chú Kế toán: <strong>${r.admin_notes || 'Đã đối soát và phát hành hóa đơn GTGT'}</strong>
+            </div>
+            <div class="small text-muted mb-3">
+              <i class="bi bi-person-check-fill text-success me-1"></i>Người duyệt: <strong>${r.reviewer_name || 'Kế toán viên'}</strong> &nbsp;|&nbsp;
+              <i class="bi bi-calendar-check me-1"></i>Thời gian: ${new Date(r.reviewed_at || r.updated_at).toLocaleString('vi-VN')}
+            </div>
+            <a href="/invoices/${r.invoice_id}" class="btn btn-success btn-sm rounded-pill px-3 shadow-xs">
+              <i class="bi bi-printer me-1"></i>Xem & In Hóa đơn điện tử
+            </a>
+          </div>
+        </div>
+      `;
+    } else {
+      bannerBox.innerHTML = `
+        <div class="alert alert-warning py-2 px-3 small rounded-3 mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-hourglass-split fs-5"></i>
+          <div>
+            <strong>Yêu cầu đang chờ xét duyệt:</strong> Ban Kế toán đang thẩm định danh mục dịch vụ. Quý khách vui lòng chờ thông báo phản hồi.
+          </div>
+        </div>
+      `;
+    }
+
+    // Items table
+    const tbody = document.getElementById('crdItemsTbody');
+    tbody.innerHTML = '';
+    if (r.items && r.items.length > 0) {
+      r.items.forEach((it, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'small';
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td class="fw-semibold text-dark">${it.item_description}</td>
+          <td class="text-center font-monospace">${it.quantity}</td>
+          <td class="text-end font-monospace">${Number(it.unit_price).toLocaleString('vi-VN')} ₫</td>
+          <td class="text-end fw-bold font-monospace">${Number(it.amount).toLocaleString('vi-VN')} ₫</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('crdSubtotal').textContent = Number(r.subtotal).toLocaleString('vi-VN') + ' ₫';
+    document.getElementById('crdTaxRate').textContent = r.tax_rate;
+    document.getElementById('crdTaxAmount').textContent = Number(r.tax_amount).toLocaleString('vi-VN') + ' ₫';
+    document.getElementById('crdTotalAmount').textContent = Number(r.total_amount).toLocaleString('vi-VN') + ' ₫';
+
+  } catch (err) {
+    loadingEl.innerHTML = `<div class="alert alert-danger py-2 small">Lỗi kết nối máy chủ: ${err.message}</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.btn-view-request-form').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      if (id) openCustomerRequestModal(id);
+    });
+  });
+});
+</script>
+
+<!-- Modal: Xem chi tiết Phiếu yêu cầu & Thông báo dạng Form (Customer Side) -->
+<div class="modal fade" id="modalCustomerRequestDetail" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content shadow-lg border-0 rounded-4">
+      <div class="modal-header border-bottom py-3 px-4 bg-light">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0">
+          <i class="bi bi-file-earmark-diff text-primary"></i>
+          <span>Chi tiết Phiếu Yêu cầu Xuất Hóa đơn</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div id="crdLoading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status"></div>
+          <div class="small text-muted mt-2">Đang tải dữ liệu yêu cầu...</div>
+        </div>
+
+        <div id="crdContent" style="display: none;">
+          <!-- Status Banner (Form Notification: Red / Green / Yellow) -->
+          <div id="crdStatusBanner"></div>
+
+          <!-- Summary details -->
+          <div class="card mb-3 bg-light border-0">
+            <div class="card-body p-3">
+              <div class="row g-2 small">
+                <div class="col-sm-6">
+                  <span class="text-muted">Mã yêu cầu:</span>
+                  <strong class="font-monospace text-primary ms-1" id="crdReqCode"></strong>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted">Ngày gửi:</span>
+                  <strong class="text-dark ms-1" id="crdIssueDate"></strong>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted">Hạn thanh toán:</span>
+                  <strong class="text-danger ms-1" id="crdDueDate"></strong>
+                </div>
+                <div class="col-12">
+                  <span class="text-muted">Ghi chú / Hợp đồng tham chiếu:</span>
+                  <em class="text-dark ms-1" id="crdNotes"></em>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items list -->
+          <h6 class="fw-bold mb-2 small text-uppercase text-secondary">Danh mục Sản phẩm / Dịch vụ</h6>
+          <div class="table-responsive border rounded-3 mb-3">
+            <table class="table table-sm align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted">
+                  <th>#</th>
+                  <th>Mô tả dịch vụ</th>
+                  <th class="text-center">Số lượng</th>
+                  <th class="text-end">Đơn giá</th>
+                  <th class="text-end">Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody id="crdItemsTbody"></tbody>
+              <tfoot class="table-light border-top">
+                <tr class="small">
+                  <td colspan="4" class="text-end text-muted">Tiền hàng (Subtotal):</td>
+                  <td class="text-end fw-semibold font-monospace" id="crdSubtotal"></td>
+                </tr>
+                <tr class="small">
+                  <td colspan="4" class="text-end text-muted">Thuế VAT (<span id="crdTaxRate"></span>%):</td>
+                  <td class="text-end fw-semibold font-monospace" id="crdTaxAmount"></td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="text-end fw-bold">Tổng thanh toán dự kiến:</td>
+                  <td class="text-end fs-6 fw-bold font-monospace text-primary" id="crdTotalAmount"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-top py-2 px-4 bg-light">
+        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

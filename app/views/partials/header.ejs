@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Hệ thống Quản lý Hóa đơn & Thanh toán</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css?v=2.6.0">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-xl navbar-dark bg-dark sticky-top shadow-sm py-2">
+    <div class="container-fluid px-3 px-xl-4">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-nowrap" href="<%= (locals.currentUser && locals.currentUser.role === 'CUSTOMER') ? ('/portal' + (locals.currentUser.username ? '?u=' + encodeURIComponent(locals.currentUser.username) : '')) : '/' %>">
+        <div class="brand-icon">
+          <i class="bi bi-receipt-cutoff"></i>
+        </div>
+        <span>BillingMaster</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto mb-2 mb-xl-0 ms-xl-2 gap-1 flex-nowrap align-items-center">
+          <% if (locals.currentUser && locals.currentUser.role !== 'CUSTOMER') { %>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap <%= currentPage === 'dashboard' ? 'active fw-semibold' : '' %>" href="/">
+              <i class="bi bi-speedometer2 me-1"></i> Tổng quan
+            </a>
+          </li>
+          <% } %>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap <%= currentPage === 'invoices' ? 'active fw-semibold' : '' %>" href="<%= (locals.currentUser && locals.currentUser.role === 'CUSTOMER') ? ('/portal' + (locals.currentUser.username ? '?u=' + encodeURIComponent(locals.currentUser.username) : '')) : '/invoices' %>">
+              <i class="bi bi-file-earmark-text me-1"></i> <%= (locals.currentUser && locals.currentUser.role === 'CUSTOMER') ? 'Hóa đơn của tôi' : 'Hóa đơn' %>
+            </a>
+          </li>
+          <% if (locals.currentUser && locals.currentUser.role !== 'CUSTOMER') { %>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap <%= currentPage === 'invoice-requests' ? 'active fw-semibold' : '' %>" href="/invoice-requests">
+              <i class="bi bi-clipboard-check me-1"></i> Duyệt yêu cầu
+              <span class="badge bg-warning text-dark rounded-pill ms-1 d-none" id="nav-pending-badge">0</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap <%= currentPage === 'customers' ? 'active fw-semibold' : '' %>" href="/customers">
+              <i class="bi bi-people me-1"></i> Khách hàng
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap <%= currentPage === 'payments' ? 'active fw-semibold' : '' %>" href="/payments">
+              <i class="bi bi-credit-card me-1"></i> Thanh toán
+            </a>
+          </li>
+          <% if (locals.currentUser && locals.currentUser.role === 'ADMIN') { %>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap <%= currentPage === 'system-status' ? 'active fw-semibold' : '' %>" href="/system-status">
+              <i class="bi bi-hdd-network me-1"></i> Giám sát & Quản trị
+            </a>
+          </li>
+          <% } %>
+          <% } %>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2 flex-nowrap">
+          <% if (locals.currentUser && locals.currentUser.role === 'CUSTOMER') { %>
+          <a href="/portal/request-invoice" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1.5 text-nowrap">
+            <i class="bi bi-file-earmark-plus"></i> Yêu cầu lập HĐ
+          </a>
+          <% } %>
+
+          <% if (locals.currentUser && locals.currentUser.role !== 'CUSTOMER') { %>
+          <a href="/invoices/create" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1 text-nowrap">
+            <i class="bi bi-plus-circle"></i> Lập hóa đơn
+          </a>
+
+          <% if (locals.currentUser && locals.currentUser.role === 'ADMIN') { %>
+          <a href="/metrics" target="_blank" class="btn btn-outline-light btn-sm rounded-pill px-2.5 text-nowrap" title="Prometheus Metrics Endpoint">
+            <i class="bi bi-graph-up"></i> Metrics
+          </a>
+          <% } %>
+          <% } %>
+
+          <% if (locals.currentUser) { %>
+            <div class="dropdown ms-1">
+              <button class="btn btn-outline-secondary btn-sm dropdown-toggle rounded-pill d-flex align-items-center gap-2 text-white border-secondary border-opacity-50 text-nowrap" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle text-primary"></i>
+                <span class="small fw-semibold nav-user-text" title="<%= locals.currentUser.full_name || locals.currentUser.username %>"><%= locals.currentUser.full_name || locals.currentUser.username %></span>
+                <span class="badge <%= locals.currentUser.role === 'ADMIN' ? 'bg-danger' : (locals.currentUser.role === 'ACCOUNTANT' ? 'bg-info text-dark' : 'bg-success') %> font-monospace" style="font-size: 0.65rem;">
+                  <%= locals.currentUser.role %>
+                </span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-secondary border-opacity-25 bg-dark">
+                <li><h6 class="dropdown-header text-secondary small">Tài khoản: <%= locals.currentUser.username %></h6></li>
+                <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
+                <li><a class="dropdown-item text-danger small d-flex align-items-center gap-2" href="/logout?role=<%= (locals.currentUser && locals.currentUser.role === 'CUSTOMER') ? 'customer' : 'admin' %>"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
+              </ul>
+            </div>
+          <% } else { %>
+            <a href="/login" class="btn btn-outline-primary btn-sm rounded-pill px-3 ms-2 text-nowrap">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </nav>
+ 
+  <!-- Global Toast Notification Container -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" id="appToastContainer"></div>
+
+  <main class="main-content py-4">
+    <div class="container-fluid px-4">

@@ -1,0 +1,124 @@
+<%- include('partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">Quản lý Khách hàng & Đối tác</h3>
+    <p class="text-muted mb-0 small">Hồ sơ khách hàng, mã số thuế, thông tin liên hệ và tổng chi tiêu</p>
+  </div>
+  <button type="button" class="btn btn-primary rounded-pill px-3 shadow-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+    <i class="bi bi-person-plus"></i> Thêm khách hàng mới
+  </button>
+</div>
+
+<!-- Search & Summary Bar -->
+<div class="card mb-4 border-0 shadow-sm">
+  <div class="card-body p-3 d-flex flex-wrap gap-3 align-items-center justify-content-between">
+    <div class="input-group input-group-sm search-box-group shadow-sm">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input type="text" id="customerSearchInput" class="form-control" placeholder="Tìm theo tên, mã KH, MST, SĐT...">
+    </div>
+    <span id="customerCountBadge" class="badge bg-light text-dark border font-monospace">Tổng: <%= customers.length %></span>
+  </div>
+</div>
+
+<!-- Customers Table Card -->
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle" id="customers-table">
+      <thead>
+        <tr>
+          <th>Mã KH</th>
+          <th>Tên Khách hàng / Doanh nghiệp</th>
+          <th>Mã số thuế</th>
+          <th>Email & Điện thoại</th>
+          <th>Địa chỉ</th>
+          <th>Số hóa đơn</th>
+          <th>Tổng chi tiêu</th>
+          <th class="text-end">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (customers.length === 0) { %>
+          <tr><td colspan="8" class="text-center py-5 text-muted">Chưa có dữ liệu khách hàng</td></tr>
+        <% } else { %>
+          <% customers.forEach(c => { %>
+            <tr>
+              <td class="font-monospace fw-bold text-primary"><%= c.code %></td>
+              <td><span class="fw-semibold"><%= c.name %></span></td>
+              <td class="font-monospace small"><%= c.tax_id || '-' %></td>
+              <td>
+                <div class="small"><i class="bi bi-envelope me-1 text-muted"></i><%= c.email || '-' %></div>
+                <div class="small text-muted"><i class="bi bi-telephone me-1 text-muted"></i><%= c.phone || '-' %></div>
+              </td>
+              <td class="small text-muted" style="max-width: 250px;"><%= c.address || '-' %></td>
+              <td>
+                <span class="badge bg-light text-dark border"><%= c.invoice_count %> HĐ</span>
+              </td>
+              <td class="fw-bold text-success font-monospace">
+                <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(c.total_spent) %>
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a href="/invoices/create?customer_id=<%= c.id %>" class="btn btn-sm btn-outline-primary" title="Lập hóa đơn mới cho khách hàng này">
+                    <i class="bi bi-receipt me-1"></i>Lập HĐ
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-danger btn-delete-customer" data-id="<%= c.id %>" data-name="<%= c.name %>" title="Xóa khách hàng">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Thêm Khách hàng Mới -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Thêm Khách hàng / Doanh nghiệp</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-add-customer">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Mã KH <span class="text-danger">*</span></label>
+              <input type="text" class="form-control font-monospace" name="code" placeholder="KH006" required>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label small fw-bold">Mã số thuế</label>
+              <input type="text" class="form-control font-monospace" name="tax_id" placeholder="0109988776">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Tên Khách hàng / Doanh nghiệp <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="name" placeholder="Công ty TNHH Giải pháp Phần mềm..." required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Email</label>
+              <input type="email" class="form-control" name="email" placeholder="contact@company.vn">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Số điện thoại</label>
+              <input type="text" class="form-control" name="phone" placeholder="0243 888 9999">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Địa chỉ trụ sở</label>
+              <textarea class="form-control" name="address" rows="2" placeholder="Số 123 Đường ABC, Quận XYZ, TP..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4">Lưu khách hàng</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

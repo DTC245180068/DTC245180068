@@ -1,0 +1,311 @@
+<%- include('partials/header') %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 no-print">
+  <div>
+    <a href="/invoices" class="btn btn-outline-secondary btn-sm rounded-pill mb-2">
+      <i class="bi bi-arrow-left"></i> Quay lại danh sách
+    </a>
+    <h3 class="fw-bold mb-0">Hóa đơn <%= invoice.invoice_number %></h3>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <button type="button" class="btn btn-outline-primary rounded-pill px-3 shadow-sm" onclick="window.print()">
+      <i class="bi bi-printer me-1"></i> In hóa đơn (PDF)
+    </button>
+
+    <% if (invoice.status === 'PAID') { %>
+      <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-shield-lock-fill"></i> Đã thu (Chỉ xem)
+      </span>
+    <% } else if (!locals.currentUser || locals.currentUser.role !== 'CUSTOMER') { %>
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary rounded-pill px-3 dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-sliders me-1"></i> Trạng thái: <strong class="text-uppercase"><%= invoice.status %></strong>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><h6 class="dropdown-header">Chuyển trạng thái</h6></li>
+          <li><button class="dropdown-item btn-update-status" data-invoice-id="<%= invoice.id %>" data-status="PAID"><i class="bi bi-check-circle text-success me-2"></i>Đã thanh toán (PAID)</button></li>
+          <li><button class="dropdown-item btn-update-status" data-invoice-id="<%= invoice.id %>" data-status="SENT"><i class="bi bi-send text-primary me-2"></i>Đã gửi (SENT)</button></li>
+          <li><button class="dropdown-item btn-update-status" data-invoice-id="<%= invoice.id %>" data-status="OVERDUE"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Quá hạn (OVERDUE)</button></li>
+          <li><button class="dropdown-item btn-update-status" data-invoice-id="<%= invoice.id %>" data-status="CANCELLED"><i class="bi bi-x-circle text-muted me-2"></i>Hủy hóa đơn (CANCELLED)</button></li>
+          <% if (invoice.payments.length === 0) { %>
+          <li><hr class="dropdown-divider"></li>
+          <li><button class="dropdown-item text-danger btn-delete-invoice" data-invoice-id="<%= invoice.id %>" data-invoice-number="<%= invoice.invoice_number %>"><i class="bi bi-trash text-danger me-2"></i>Xóa hóa đơn</button></li>
+          <% } %>
+        </ul>
+      </div>
+
+      <% if (invoice.remaining_balance > 0) { %>
+        <button type="button" class="btn btn-success rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#paymentModal">
+          <i class="bi bi-credit-card me-1"></i> Ghi nhận thanh toán
+        </button>
+      <% } else { %>
+        <button type="button" class="btn btn-outline-success rounded-pill px-3" disabled>
+          <i class="bi bi-check2-all me-1"></i> Đã thanh toán đủ
+        </button>
+      <% } %>
+    <% } %>
+
+    <% if (locals.currentUser && locals.currentUser.role === 'CUSTOMER' && invoice.status !== 'PAID' && invoice.remaining_balance > 0) { %>
+      <button type="button" class="btn btn-success rounded-pill px-3 shadow-sm btn-customer-quickpay d-inline-flex align-items-center gap-1.5"
+              data-invoice-id="<%= invoice.id %>"
+              data-invoice-number="<%= invoice.invoice_number %>"
+              data-amount="<%= invoice.remaining_balance %>"
+              data-total="<%= invoice.total_amount %>"
+              data-customer-name="<%= invoice.customer_name %>"
+              data-customer-code="<%= invoice.customer_code %>">
+        <i class="bi bi-credit-card-2-front-fill"></i>
+        <span>Thanh toán trực tuyến ngay</span>
+      </button>
+    <% } %>
+  </div>
+</div>
+
+<% if (invoice.status === 'PAID') { %>
+  <div class="alert alert-success d-flex align-items-center gap-2 mb-4 py-2 px-3 rounded-3 shadow-sm no-print">
+    <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+    <div>Hóa đơn này <strong>đã thu (Đã thanh toán toàn bộ)</strong> và đã <strong>khóa thao tác</strong>. Chỉ có thể xem lại và in chứng từ. Dư nợ còn lại: <strong class="text-success">0 ₫</strong>.</div>
+  </div>
+<% } else if (invoice.status === 'OVERDUE') { %>
+  <div class="alert alert-danger d-flex align-items-center gap-2 mb-4 py-2 px-3 rounded-3 shadow-sm no-print">
+    <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+    <div>Cảnh báo: Hóa đơn này <strong>đã quá hạn thanh toán</strong> từ ngày <%= new Date(invoice.due_date).toLocaleDateString('vi-VN') %>. Vui lòng đối soát và nhắc nhở khách hàng.</div>
+  </div>
+<% } %>
+
+<!-- Invoice Printable Sheet -->
+<div class="card p-4 p-md-5 mb-4 shadow-sm bg-white" id="invoice-sheet">
+  <!-- Header: Seller & Invoice Meta -->
+  <div class="row align-items-start border-bottom pb-4 mb-4">
+    <div class="col-sm-7">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div class="brand-icon">
+          <i class="bi bi-receipt-cutoff"></i>
+        </div>
+        <h4 class="fw-bold mb-0 text-primary">CÔNG TY CỔ PHẦN CÔNG NGHỆ BILLINGMASTER</h4>
+      </div>
+      <p class="text-muted small mb-1">Địa chỉ: Tầng 12, Tòa nhà Innovation, Khu Công nghệ cao, Hà Nội</p>
+      <p class="text-muted small mb-1">Mã số thuế: <strong>0108889999</strong> | Hotline: (024) 7300 8888</p>
+      <p class="text-muted small mb-0">Email: billing@billingmaster.vn | Website: https://billingmaster.vn</p>
+    </div>
+
+    <div class="col-sm-5 text-sm-end mt-3 mt-sm-0">
+      <h2 class="fw-bold text-dark mb-1">HÓA ĐƠN GTGT</h2>
+      <div class="font-monospace fs-5 fw-bold text-primary mb-2"><%= invoice.invoice_number %></div>
+      <div>
+        <span class="badge-status <%= invoice.status %> fs-6">
+          <%= invoice.status === 'PAID' ? 'ĐÃ THANH TOÁN' : (invoice.status === 'SENT' ? 'CHỜ THANH TOÁN' : (invoice.status === 'OVERDUE' ? 'QUÁ HẠN' : invoice.status)) %>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Info & Dates -->
+  <div class="row mb-4">
+    <div class="col-sm-6">
+      <h6 class="text-muted text-uppercase fw-bold small">Đơn vị mua hàng (Khách hàng):</h6>
+      <h5 class="fw-bold mb-1"><%= invoice.customer_name %></h5>
+      <p class="mb-1 small"><strong>Mã khách hàng:</strong> <%= invoice.customer_code %></p>
+      <% if (invoice.customer_tax_id) { %>
+        <p class="mb-1 small"><strong>Mã số thuế:</strong> <%= invoice.customer_tax_id %></p>
+      <% } %>
+      <% if (invoice.customer_address) { %>
+        <p class="mb-1 small"><strong>Địa chỉ:</strong> <%= invoice.customer_address %></p>
+      <% } %>
+      <% if (invoice.customer_email || invoice.customer_phone) { %>
+        <p class="mb-0 small text-muted"><strong>Liên hệ:</strong> <%= invoice.customer_phone || '' %> - <%= invoice.customer_email || '' %></p>
+      <% } %>
+    </div>
+
+    <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+      <p class="mb-1 small"><strong>Ngày phát hành:</strong> <%= new Date(invoice.issue_date).toLocaleDateString('vi-VN') %></p>
+      <p class="mb-1 small"><strong>Hạn thanh toán:</strong> <%= new Date(invoice.due_date).toLocaleDateString('vi-VN') %></p>
+      <p class="mb-0 small"><strong>Hình thức TT:</strong> Chuyển khoản ngân hàng / Tiền mặt</p>
+    </div>
+  </div>
+
+  <!-- Line Items Table -->
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 50px;" class="text-center">STT</th>
+          <th>Tên Hàng hóa / Dịch vụ</th>
+          <th style="width: 100px;" class="text-center">Số lượng</th>
+          <th style="width: 180px;" class="text-end">Đơn giá (VND)</th>
+          <th style="width: 180px;" class="text-end">Thành tiền (VND)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% invoice.items.forEach((item, index) => { %>
+          <tr>
+            <td class="text-center font-monospace"><%= index + 1 %></td>
+            <td class="fw-semibold"><%= item.item_description %></td>
+            <td class="text-center"><%= item.quantity %></td>
+            <td class="text-end font-monospace"><%= new Intl.NumberFormat('vi-VN').format(item.unit_price) %> ₫</td>
+            <td class="text-end font-monospace fw-bold"><%= new Intl.NumberFormat('vi-VN').format(item.amount) %> ₫</td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Calculation Summary -->
+  <div class="row justify-content-end mb-4">
+    <div class="col-md-5">
+      <table class="table table-sm table-borderless">
+        <tr>
+          <td class="text-muted">Cộng tiền hàng (Subtotal):</td>
+          <td class="text-end font-monospace fw-semibold"><%= new Intl.NumberFormat('vi-VN').format(invoice.subtotal) %> ₫</td>
+        </tr>
+        <% if (parseFloat(invoice.discount_amount) > 0) { %>
+          <tr>
+            <td class="text-muted">Chiết khấu thương mại:</td>
+            <td class="text-end font-monospace text-danger">-<%= new Intl.NumberFormat('vi-VN').format(invoice.discount_amount) %> ₫</td>
+          </tr>
+        <% } %>
+        <tr>
+          <td class="text-muted">Thuế suất GTGT (<%= invoice.tax_rate %>%):</td>
+          <td class="text-end font-monospace fw-semibold"><%= new Intl.NumberFormat('vi-VN').format(invoice.tax_amount) %> ₫</td>
+        </tr>
+        <tr class="border-top">
+          <td class="fw-bold fs-6">Tổng cộng tiền thanh toán:</td>
+          <td class="text-end font-monospace fw-bold fs-5 text-primary">
+            <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.total_amount) %>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-success fw-semibold">Đã thanh toán:</td>
+          <td class="text-end font-monospace text-success fw-bold">
+            <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.total_paid) %>
+          </td>
+        </tr>
+        <tr class="border-top">
+          <td class="fw-bold text-danger">Còn lại phải trả:</td>
+          <td class="text-end font-monospace fw-bold text-danger">
+            <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.remaining_balance) %>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <% if (invoice.notes) { %>
+    <div class="p-3 bg-light rounded-3 mb-4 small">
+      <strong>Ghi chú:</strong> <%= invoice.notes %>
+    </div>
+  <% } %>
+
+  <!-- Signatures block -->
+  <div class="row text-center mt-5 pt-3">
+    <div class="col-6">
+      <p class="fw-bold mb-1">NGƯỜI MUA HÀNG</p>
+      <small class="text-muted">(Ký, ghi rõ họ tên)</small>
+      <div style="height: 80px;"></div>
+    </div>
+    <div class="col-6">
+      <p class="fw-bold mb-1">NGƯỜI BÁN HÀNG</p>
+      <small class="text-muted">(Ký, đóng dấu điện tử)</small>
+      <div style="height: 80px;"></div>
+      <p class="text-muted small">BillingMaster Enterprise Platform</p>
+    </div>
+  </div>
+</div>
+
+<!-- Payments History for this Invoice -->
+<div class="card mb-4 no-print">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-clock-history me-2 text-primary"></i>Lịch sử Giao dịch Thanh toán cho Hóa đơn này</span>
+    <span class="badge bg-light text-muted border"><%= invoice.payments.length %> giao dịch</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead>
+        <tr>
+          <th>Mã GD</th>
+          <th>Ngày thanh toán</th>
+          <th>Phương thức</th>
+          <th>Mã tham chiếu / Số UNC</th>
+          <th>Số tiền</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (invoice.payments.length === 0) { %>
+          <tr><td colspan="6" class="text-center py-3 text-muted">Chưa có giao dịch thanh toán nào</td></tr>
+        <% } else { %>
+          <% invoice.payments.forEach(p => { %>
+            <tr>
+              <td class="font-monospace fw-bold"><%= p.payment_code %></td>
+              <td><%= new Date(p.payment_date).toLocaleDateString('vi-VN') %></td>
+              <td><span class="badge bg-secondary-subtle text-secondary border"><%= p.payment_method %></span></td>
+              <td class="font-monospace text-muted small"><%= p.reference_no || '-' %></td>
+              <td class="font-monospace fw-bold text-success">+<%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.amount) %></td>
+              <td class="small text-muted"><%= p.notes || '-' %></td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (invoice.status !== 'PAID' && invoice.remaining_balance > 0 && (!locals.currentUser || locals.currentUser.role !== 'CUSTOMER')) { %>
+<!-- Modal Ghi nhận Thanh toán -->
+<div class="modal fade no-print" id="paymentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Ghi nhận Thanh toán Hóa đơn</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-record-payment">
+        <div class="modal-body">
+          <input type="hidden" name="invoice_id" value="<%= invoice.id %>">
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Số tiền thanh toán (VND)</label>
+            <input type="number" class="form-control" name="amount" value="<%= invoice.remaining_balance > 0 ? invoice.remaining_balance : invoice.total_amount %>" min="1" step="any" required>
+            <small class="text-muted">Còn phải trả: <strong><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.remaining_balance) %></strong></small>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Phương thức thanh toán</label>
+            <select class="form-select" name="payment_method" required>
+              <option value="BANK_TRANSFER">Chuyển khoản Ngân hàng (Bank Transfer)</option>
+              <option value="CASH">Tiền mặt (Cash)</option>
+              <option value="CREDIT_CARD">Thẻ tín dụng / Ghi nợ (Credit Card)</option>
+              <option value="EWALLET">Ví điện tử (Momo/ZaloPay)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Mã tham chiếu / Số chứng từ giao dịch</label>
+            <input type="text" class="form-control font-monospace" name="reference_no" placeholder="Ví dụ: VCB2601994821">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Ngày thanh toán</label>
+            <input type="date" class="form-control" name="payment_date" value="<%= new Date().toISOString().slice(0, 10) %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Ghi chú</label>
+            <textarea class="form-control" name="notes" rows="2" placeholder="Ghi chú thêm về giao dịch..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+          <button type="submit" class="btn btn-success rounded-pill px-4">Xác nhận thanh toán</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<% if (locals.currentUser && locals.currentUser.role === 'CUSTOMER') { %>
+<%- include('partials/customer-modals') %>
+<% } %>
+
+<%- include('partials/footer') %>
+

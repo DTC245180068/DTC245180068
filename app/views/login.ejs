@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập Hệ thống | BillingMaster</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      padding: 1.5rem;
+    }
+    .login-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 480px;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+    .login-header {
+      padding: 2.25rem 2rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.4);
+    }
+    .brand-logo-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #fff;
+      box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.5);
+      margin-bottom: 1rem;
+    }
+    .form-control {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: 0.65rem;
+    }
+    .form-control:focus {
+      background: rgba(15, 23, 42, 0.85);
+      border-color: #3b82f6;
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+    .btn-login {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      transition: all 0.2s ease;
+    }
+    .btn-login:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.5);
+    }
+    .quick-account-btn {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.65rem;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+    .quick-account-btn:hover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="login-header">
+      <div class="brand-logo-circle">
+        <i class="bi bi-receipt-cutoff"></i>
+      </div>
+      <h3 class="fw-bold mb-1">BillingMaster</h3>
+      <p class="text-secondary small mb-0">Hệ thống Quản lý Hóa đơn & Thanh toán</p>
+    </div>
+
+    <div class="p-4">
+      <% if (locals.error && error) { %>
+        <div class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+          <div><%= error %></div>
+        </div>
+      <% } %>
+
+      <div id="alertBox" class="alert alert-danger py-2 px-3 small d-none align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span id="alertMsg"></span>
+      </div>
+
+      <form id="loginForm" method="POST" action="/login">
+        <div class="mb-3">
+          <label for="usernameInput" class="form-label small text-secondary fw-semibold">Tên đăng nhập</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-person"></i></span>
+            <input type="text" class="form-control" id="usernameInput" name="username" placeholder="admin, ketoan1, khachhang1..." required autofocus>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="passwordInput" class="form-label small text-secondary fw-semibold">Mật khẩu</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-lock"></i></span>
+            <input type="password" class="form-control" id="passwordInput" name="password" placeholder="Nhập mật khẩu..." required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-login w-100 d-flex align-items-center justify-content-center gap-2">
+          <i class="bi bi-box-arrow-in-right"></i> Đăng nhập hệ thống
+        </button>
+      </form>
+
+      <!-- Quick demo accounts -->
+      <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="small text-secondary fw-semibold"><i class="bi bi-key me-1"></i>Chọn nhanh tài khoản kiểm thử:</span>
+        </div>
+        <div class="row g-2">
+          <div class="col-6">
+            <button type="button" class="quick-account-btn" onclick="fillAccount('admin', 'admin123')">
+              <div class="d-flex justify-content-between align-items-center">
+                <strong class="text-white">Quản trị viên</strong>
+                <span class="badge bg-danger" style="font-size: 0.6rem;">ADMIN</span>
+              </div>
+              <small class="text-secondary d-block">admin / admin123</small>
+              <span class="text-info" style="font-size: 0.7rem;"><i class="bi bi-speedometer2 me-1"></i>Đến Dashboard</span>
+            </button>
+          </div>
+          <div class="col-6">
+            <button type="button" class="quick-account-btn" onclick="fillAccount('ketoan1', '123456')">
+              <div class="d-flex justify-content-between align-items-center">
+                <strong class="text-white">Kế toán trưởng</strong>
+                <span class="badge bg-info text-dark" style="font-size: 0.6rem;">ACCOUNTANT</span>
+              </div>
+              <small class="text-secondary d-block">ketoan1 / 123456</small>
+              <span class="text-info" style="font-size: 0.7rem;"><i class="bi bi-receipt me-1"></i>Đến QL Hóa đơn</span>
+            </button>
+          </div>
+          <div class="col-6">
+            <button type="button" class="quick-account-btn" onclick="fillAccount('khachhang1', '123456')">
+              <div class="d-flex justify-content-between align-items-center">
+                <strong class="text-white">Khách hàng 1</strong>
+                <span class="badge bg-success" style="font-size: 0.6rem;">CUSTOMER</span>
+              </div>
+              <small class="text-secondary d-block">khachhang1 / 123456</small>
+              <span class="text-info" style="font-size: 0.7rem;"><i class="bi bi-file-earmark-person me-1"></i>Hóa đơn của tôi</span>
+            </button>
+          </div>
+          <div class="col-6">
+            <button type="button" class="quick-account-btn" onclick="fillAccount('khachhang2', '123456')">
+              <div class="d-flex justify-content-between align-items-center">
+                <strong class="text-white">Khách hàng 2</strong>
+                <span class="badge bg-success" style="font-size: 0.6rem;">CUSTOMER</span>
+              </div>
+              <small class="text-secondary d-block">khachhang2 / 123456</small>
+              <span class="text-info" style="font-size: 0.7rem;"><i class="bi bi-file-earmark-person me-1"></i>Hóa đơn của tôi</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function fillAccount(user, pass) {
+      document.getElementById('usernameInput').value = user;
+      document.getElementById('passwordInput').value = pass;
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('usernameInput').value;
+      const password = document.getElementById('passwordInput').value;
+      const alertBox = document.getElementById('alertBox');
+      const alertMsg = document.getElementById('alertMsg');
+      const submitBtn = document.querySelector('.btn-login');
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Đang kiểm tra tài khoản & vai trò...';
+      }
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const userRole = data.data.role;
+          const roleTitle = data.data.roleTitleVi || userRole;
+          const targetUrl = data.data.redirectUrl || '/';
+          const targetName = (userRole === 'ADMIN') ? 'Dashboard Quản trị Trung tâm' : ((userRole === 'ACCOUNTANT') ? 'Trang Quản lý Hóa đơn & Công nợ' : 'Cổng tra cứu Hóa đơn của tôi');
+
+          // Hiển thị trực tiếp xác nhận vai trò ngay trên form đăng nhập
+          alertBox.className = 'alert alert-success py-2 px-3 small d-flex align-items-center gap-2 mb-3';
+          alertMsg.innerHTML = `<div class="w-100">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <strong><i class="bi bi-shield-check text-success me-1"></i>Xác thực vai trò thành công!</strong>
+              <span class="badge ${userRole === 'ADMIN' ? 'bg-danger' : (userRole === 'ACCOUNTANT' ? 'bg-info text-dark' : 'bg-success')}">${roleTitle} (${userRole})</span>
+            </div>
+            <div class="text-light-50 small">Tài khoản: <strong>${data.data.fullName || username}</strong></div>
+            <div class="small mt-1 text-info"><i class="bi bi-arrow-right-circle me-1"></i>Đang chuyển đến: <strong>${targetName}</strong>...</div>
+          </div>`;
+
+          sessionStorage.setItem('billing_token', data.data.token);
+          sessionStorage.setItem('billing_role', userRole);
+          sessionStorage.setItem('billing_username', data.data.username);
+          sessionStorage.setItem('flash_toast', JSON.stringify({
+            title: `Đăng nhập thành công - ${roleTitle}`,
+            message: `Chào mừng <strong>${data.data.fullName || username}</strong>! Bạn đang làm việc với vai trò <strong>${roleTitle} (${userRole})</strong>.`,
+            type: 'success'
+          }));
+
+          setTimeout(() => {
+            window.location.href = targetUrl;
+          }, 600);
+        } else {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập hệ thống';
+          }
+          alertBox.className = 'alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3';
+          alertMsg.textContent = data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác';
+        }
+      } catch (err) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập hệ thống';
+        }
+        alertBox.className = 'alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3';
+        alertMsg.textContent = 'Lỗi kết nối máy chủ hoặc bị chặn bởi Rate Limiting';
+      }
+    });
+  </script>
+</body>
+</html>

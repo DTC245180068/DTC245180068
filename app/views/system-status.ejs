@@ -1,0 +1,176 @@
+<%- include('partials/header') %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">Kiến trúc Hệ thống & Giám sát Vận hành</h3>
+    <p class="text-muted mb-0 small">Tổng quan dịch vụ Docker Compose, Cổng kết nối, Giám sát Prometheus & LogQL</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" id="btn-ping-health" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+      <i class="bi bi-broadcast me-1"></i> Kiểm tra kết nối Live
+    </button>
+    <a href="/api/health" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm">
+      <i class="bi bi-heart-pulse me-1"></i> Xem JSON Health
+    </a>
+  </div>
+</div>
+
+<!-- Interactive Live Ping Result Box -->
+<div id="healthResultBox" class="mb-4 d-none"></div>
+
+<!-- Services Grid -->
+<div class="row g-4 mb-4">
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 border-start border-4 border-primary">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h6 class="fw-bold mb-0">Nginx Reverse Proxy</h6>
+          <span class="badge bg-success-subtle text-success">SSL Active</span>
+        </div>
+        <p class="small text-muted mb-3">Điểm tiếp nhận lưu lượng duy nhất, mã hóa HTTPS tự ký, chống DoS và chèn Security Headers.</p>
+        <div class="small">
+          <div><strong>Port:</strong> 80 (HTTP) -> 443 (HTTPS)</div>
+          <div><strong>Cert:</strong> TLS Self-Signed 2048-bit</div>
+          <div><strong>Proxy pass:</strong> Node.js App (:3000)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 border-start border-4 border-info">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h6 class="fw-bold mb-0">PostgreSQL + pgAdmin</h6>
+          <span class="badge bg-primary-subtle text-primary">Isolated Net</span>
+        </div>
+        <p class="small text-muted mb-3">Cơ sở dữ liệu quan hệ lưu trữ dữ liệu hóa đơn, kết nối an toàn qua mạng nội bộ backend-net.</p>
+        <div class="small">
+          <div><strong>DB:</strong> billing_db (:5432)</div>
+          <div><strong>User:</strong> billing_user</div>
+          <div><strong>pgAdmin:</strong> Port 5050 (Web GUI)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 border-start border-4 border-warning">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h6 class="fw-bold mb-0">Prometheus + Grafana</h6>
+          <span class="badge bg-warning-subtle text-warning">Monitoring</span>
+        </div>
+        <p class="small text-muted mb-3">Thu thập và trực quan hóa chỉ số hệ thống, container, ứng dụng và cơ sở dữ liệu thời gian thực.</p>
+        <div class="small">
+          <div><strong>Prometheus:</strong> Port 9090</div>
+          <div><strong>Grafana:</strong> Port 3001 (Dashboards)</div>
+          <div><strong>Exporters:</strong> App, Postgres, cAdvisor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100 border-start border-4 border-danger">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h6 class="fw-bold mb-0">Loki + Promtail</h6>
+          <span class="badge bg-danger-subtle text-danger">Centralized Logs</span>
+        </div>
+        <p class="small text-muted mb-3">Hệ thống gom log tập trung từ Nginx, Node.js và Postgres. Hỗ trợ truy vấn mạnh mẽ qua LogQL.</p>
+        <div class="small">
+          <div><strong>Loki Server:</strong> Port 3100</div>
+          <div><strong>Promtail:</strong> Log collector daemon</div>
+          <div><strong>Log Format:</strong> Structured JSON</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LogQL Queries & Monitoring Section -->
+<div class="row g-4 mb-4">
+  <div class="col-12 col-lg-7">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-code-square me-2 text-primary"></i>Các câu truy vấn mẫu LogQL (Yêu cầu Đề bài)</span>
+        <span class="badge bg-light text-muted border">Loki LogQL</span>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="fw-bold small text-dark mb-1">1. Lọc tất cả log lỗi trong ứng dụng Billing:</div>
+          <pre class="bg-dark text-warning p-2 rounded small font-monospace mb-1">{container="billing-app"} |= "error"</pre>
+          <small class="text-muted">Truy vấn tìm kiếm tất cả các dòng log có chứa chuỗi "error" từ container ứng dụng.</small>
+        </div>
+
+        <div class="mb-3">
+          <div class="fw-bold small text-dark mb-1">2. Parse log JSON và lọc các HTTP request có response time > 50ms:</div>
+          <pre class="bg-dark text-info p-2 rounded small font-monospace mb-1">{container="billing-app"} | json | responseTimeMs > 50</pre>
+          <small class="text-muted">Bóc tách các trường JSON có sẵn và lọc các request có độ trễ cao.</small>
+        </div>
+
+        <div class="mb-3">
+          <div class="fw-bold small text-dark mb-1">3. Theo dõi các truy cập tới Nginx reverse proxy theo status code:</div>
+          <pre class="bg-dark text-success p-2 rounded small font-monospace mb-1">{container="nginx"} |~ "(GET|POST) /api/.*"</pre>
+          <small class="text-muted">Tìm kiếm log truy cập API thông qua Nginx bằng biểu thức chính quy (Regex).</small>
+        </div>
+
+        <div>
+          <div class="fw-bold small text-dark mb-1">4. Đếm số lượng log cảnh báo/lỗi theo khoảng thời gian 5 phút:</div>
+          <pre class="bg-dark text-white p-2 rounded small font-monospace mb-1">sum by (container) (count_over_time({job="docker-containers"} |= "error" [5m]))</pre>
+          <small class="text-muted">Hàm tổng hợp LogQL đo tần suất phát sinh lỗi của toàn bộ container.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">
+        <i class="bi bi-shield-lock me-2 text-success"></i>Biện pháp Hardening & Bảo mật Đã áp dụng
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush small">
+          <li class="list-group-item d-flex align-items-center gap-2 px-0">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <div>
+              <strong>Non-root Containers:</strong>
+              <div class="text-muted">Node.js và Nginx chạy dưới user không có đặc quyền (UID 10001 / node user), ngăn ngừa leo thang đặc quyền container breakout.</div>
+            </div>
+          </li>
+          <li class="list-group-item d-flex align-items-center gap-2 px-0">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <div>
+              <strong>Network Isolation:</strong>
+              <div class="text-muted">Phân tách thành 3 network riêng biệt (frontend-net, backend-net, monitoring-net). Database không mở port ra Internet.</div>
+            </div>
+          </li>
+          <li class="list-group-item d-flex align-items-center gap-2 px-0">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <div>
+              <strong>Security Headers Nginx:</strong>
+              <div class="text-muted">Áp dụng HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy.</div>
+            </div>
+          </li>
+          <li class="list-group-item d-flex align-items-center gap-2 px-0">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <div>
+              <strong>Resource Limits:</strong>
+              <div class="text-muted">Giới hạn CPU và RAM (mem_limit, cpus) cho từng container nhằm chống DoS kiệt tài nguyên.</div>
+            </div>
+          </li>
+          <li class="list-group-item d-flex align-items-center gap-2 px-0">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <div>
+              <strong>Mật khẩu mạnh & Biến môi trường:</strong>
+              <div class="text-muted">Không lưu mật khẩu trong mã nguồn, dùng .env với mật khẩu phức tạp > 16 ký tự.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

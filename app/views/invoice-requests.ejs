@@ -1,0 +1,369 @@
+<%- include('partials/header') %>
+
+<div class="mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <h3 class="fw-bold mb-1 d-flex align-items-center flex-wrap gap-2">
+        <i class="bi bi-clipboard-check text-primary"></i>
+        <span>Phê duyệt Yêu cầu Hóa đơn</span>
+        <% if (locals.currentUser && locals.currentUser.role === 'ACCOUNTANT') { %>
+          <span class="badge bg-info-subtle text-info border border-info-subtle fs-6 py-1 px-2.5 rounded-pill">
+            <i class="bi bi-calculator me-1"></i>Nghiệp vụ Kế toán
+          </span>
+        <% } else { %>
+          <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-6 py-1 px-2.5 rounded-pill">
+            <i class="bi bi-shield-lock me-1"></i>Quản trị viên Hệ thống
+          </span>
+        <% } %>
+      </h3>
+      <p class="text-muted small mb-0">
+        Tiếp nhận, thẩm định danh mục dịch vụ và xét duyệt yêu cầu phát hành hóa đơn GTGT gửi từ Khách hàng
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/invoices" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1.5">
+        <i class="bi bi-file-earmark-text"></i> Danh sách Hóa đơn chính thức
+      </a>
+      <a href="/invoices/create" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1.5">
+        <i class="bi bi-plus-lg"></i> Lập hóa đơn thủ công
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 4 Statistics Counter Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-warning">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <span class="text-uppercase small fw-bold text-warning">Đang chờ xét duyệt</span>
+          <h3 class="fw-bold my-1 font-monospace text-dark"><%= counts.pending %></h3>
+          <span class="small text-muted">Cần kế toán phản hồi</span>
+        </div>
+        <div class="customer-kpi-icon warning">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-success">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <span class="text-uppercase small fw-bold text-success">Đã phê duyệt (Phát hành HĐ)</span>
+          <h3 class="fw-bold my-1 font-monospace text-success"><%= counts.approved %></h3>
+          <span class="small text-muted">Đã tạo hóa đơn hợp lệ</span>
+        </div>
+        <div class="customer-kpi-icon success">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-danger">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <span class="text-uppercase small fw-bold text-danger">Không duyệt / Từ chối</span>
+          <h3 class="fw-bold my-1 font-monospace text-danger"><%= counts.rejected %></h3>
+          <span class="small text-muted">Không tạo hóa đơn</span>
+        </div>
+        <div class="customer-kpi-icon danger">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-primary">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <span class="text-uppercase small fw-bold text-primary">Tổng số yêu cầu</span>
+          <h3 class="fw-bold my-1 font-monospace text-primary"><%= counts.total %></h3>
+          <span class="small text-muted">Toàn bộ lịch sử tiếp nhận</span>
+        </div>
+        <div class="customer-kpi-icon primary">
+          <i class="bi bi-inboxes-fill"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body py-2 px-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <ul class="nav nav-pills gap-1">
+        <li class="nav-item">
+          <a class="nav-link rounded-pill px-3 py-1.5 small <%= currentStatus === 'ALL' ? 'active fw-semibold' : 'text-muted' %>" href="/invoice-requests?status=ALL">
+            Tất cả (<%= counts.total %>)
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-pill px-3 py-1.5 small <%= currentStatus === 'PENDING' ? 'active bg-warning text-dark fw-bold' : 'text-muted' %>" href="/invoice-requests?status=PENDING">
+            <i class="bi bi-clock-history me-1"></i>Chờ duyệt (<%= counts.pending %>)
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-pill px-3 py-1.5 small <%= currentStatus === 'APPROVED' ? 'active bg-success fw-bold' : 'text-muted' %>" href="/invoice-requests?status=APPROVED">
+            <i class="bi bi-check2-circle me-1"></i>Đã duyệt (<%= counts.approved %>)
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link rounded-pill px-3 py-1.5 small <%= currentStatus === 'REJECTED' ? 'active bg-danger fw-bold' : 'text-muted' %>" href="/invoice-requests?status=REJECTED">
+            <i class="bi bi-x-circle me-1"></i>Không duyệt (<%= counts.rejected %>)
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Requests Table -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white py-3">
+    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-list-task me-2 text-primary"></i>Danh sách Yêu cầu Xuất Hóa đơn</h6>
+  </div>
+  <div class="table-responsive">
+    <table class="table align-middle table-hover mb-0" id="requests-table">
+      <thead class="table-light">
+        <tr>
+          <th>Mã yêu cầu</th>
+          <th>Doanh nghiệp / Khách hàng</th>
+          <th>Ngày gửi</th>
+          <th>Hạn thanh toán</th>
+          <th class="text-center">Số dịch vụ</th>
+          <th class="text-end">Tổng tiền (VND)</th>
+          <th class="text-center">Trạng thái</th>
+          <th>Người & Ngày xử lý</th>
+          <th class="text-center" style="width: 140px;">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (requests && requests.length > 0) { %>
+          <% requests.forEach(r => { %>
+            <tr>
+              <td>
+                <span class="font-monospace fw-bold text-primary"><%= r.request_code %></span>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark"><%= r.customer_name %></div>
+                <div class="small text-muted font-monospace"><%= r.customer_code %></div>
+              </td>
+              <td class="small text-muted">
+                <%= new Date(r.issue_date).toLocaleDateString('vi-VN') %>
+              </td>
+              <td class="small text-muted">
+                <%= new Date(r.due_date).toLocaleDateString('vi-VN') %>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-light text-dark border"><%= r.items_count || 1 %> dịch vụ</span>
+              </td>
+              <td class="text-end font-monospace fw-bold text-dark">
+                <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(r.total_amount) %>
+              </td>
+              <td class="text-center">
+                <% if (r.status === 'PENDING') { %>
+                  <span class="badge bg-warning text-dark py-1.5 px-2.5 rounded-pill shadow-xs">
+                    <i class="bi bi-hourglass-split me-1"></i>Chờ duyệt
+                  </span>
+                <% } else if (r.status === 'APPROVED') { %>
+                  <span class="badge bg-success py-1.5 px-2.5 rounded-pill shadow-xs">
+                    <i class="bi bi-check-circle-fill me-1"></i>Đã duyệt
+                  </span>
+                  <% if (r.linked_invoice_number) { %>
+                    <div class="mt-1">
+                      <a href="/invoices/<%= r.invoice_id %>" class="small font-monospace text-decoration-none fw-bold text-primary">
+                        <i class="bi bi-link-45deg"></i><%= r.linked_invoice_number %>
+                      </a>
+                    </div>
+                  <% } %>
+                <% } else if (r.status === 'REJECTED') { %>
+                  <span class="badge bg-danger py-1.5 px-2.5 rounded-pill shadow-xs">
+                    <i class="bi bi-x-circle-fill me-1"></i>Không duyệt
+                  </span>
+                <% } %>
+              </td>
+              <td class="small">
+                <% if (r.reviewer_name) { %>
+                  <div class="fw-semibold text-dark"><i class="bi bi-person-check me-1 text-primary"></i><%= r.reviewer_name %></div>
+                  <div class="text-muted"><%= new Date(r.reviewed_at).toLocaleString('vi-VN') %></div>
+                <% } else { %>
+                  <span class="text-muted italic">-- Chưa xử lý --</span>
+                <% } %>
+              </td>
+              <td class="text-center">
+                <% if (r.status === 'PENDING') { %>
+                  <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow-xs btn-review-request" data-id="<%= r.id %>">
+                    <i class="bi bi-clipboard-check me-1"></i>Xét duyệt
+                  </button>
+                <% } else { %>
+                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-2.5 btn-review-request" data-id="<%= r.id %>">
+                    <i class="bi bi-eye me-1"></i>Chi tiết
+                  </button>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="9" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+              Không có yêu cầu xuất hóa đơn nào phù hợp với bộ lọc hiện tại.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal: Xem chi tiết & Phê duyệt / Từ chối Yêu cầu -->
+<div class="modal fade" id="modalReviewRequest" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content shadow-lg border-0 rounded-4">
+      <div class="modal-header border-bottom py-3 px-4 bg-light">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0">
+          <i class="bi bi-file-earmark-check text-primary"></i>
+          <span>Thẩm định Yêu cầu Xuất Hóa đơn</span>
+          <span class="badge font-monospace" id="rvModalStatusBadge">PENDING</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        
+        <!-- Loading State -->
+        <div id="rvModalLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="text-muted mt-2 small">Đang tải dữ liệu chi tiết yêu cầu...</p>
+        </div>
+
+        <!-- Content Container -->
+        <div id="rvModalContent" style="display: none;">
+          
+          <!-- Notice Banner if Approved / Rejected -->
+          <div id="rvNoticeBanner"></div>
+
+          <!-- Customer & Request Info -->
+          <div class="card mb-3 bg-light border-0">
+            <div class="card-body p-3">
+              <div class="row g-2 small">
+                <div class="col-sm-6">
+                  <span class="text-muted">Mã yêu cầu:</span>
+                  <strong class="font-monospace text-primary ms-1" id="rvReqCode"></strong>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted">Khách hàng:</span>
+                  <strong class="text-dark ms-1" id="rvCustName"></strong>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted">Mã số thuế:</span>
+                  <span class="font-monospace ms-1" id="rvCustTax"></span>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted">Hạn thanh toán:</span>
+                  <strong class="ms-1 text-danger" id="rvDueDate"></strong>
+                </div>
+                <div class="col-12">
+                  <span class="text-muted">Địa chỉ xuất HĐ:</span>
+                  <span class="ms-1" id="rvCustAddress"></span>
+                </div>
+                <div class="col-12" id="rvNotesRow">
+                  <span class="text-muted">Ghi chú của khách:</span>
+                  <em class="ms-1 text-dark" id="rvNotes"></em>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Line Items Table -->
+          <h6 class="fw-bold mb-2 small text-uppercase text-secondary">Danh mục Sản phẩm / Dịch vụ yêu cầu</h6>
+          <div class="table-responsive border rounded-3 mb-3">
+            <table class="table table-sm align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted">
+                  <th>#</th>
+                  <th>Mô tả dịch vụ</th>
+                  <th class="text-center">Số lượng</th>
+                  <th class="text-end">Đơn giá</th>
+                  <th class="text-end">Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody id="rvItemsTbody"></tbody>
+              <tfoot class="table-light border-top">
+                <tr class="small">
+                  <td colspan="4" class="text-end text-muted">Tiền hàng (Subtotal):</td>
+                  <td class="text-end fw-semibold font-monospace" id="rvSubtotal"></td>
+                </tr>
+                <tr class="small">
+                  <td colspan="4" class="text-end text-muted">Thuế VAT (<span id="rvTaxRate"></span>%):</td>
+                  <td class="text-end fw-semibold font-monospace" id="rvTaxAmount"></td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="text-end fw-bold">Tổng thanh toán phê duyệt:</td>
+                  <td class="text-end fs-6 fw-bold font-monospace text-primary" id="rvTotalAmount"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Action Box: Appears only if PENDING -->
+          <div id="rvActionBox">
+            <hr class="my-3">
+            
+            <div class="row g-3">
+              <!-- Approve Column -->
+              <div class="col-12 col-md-6 border-end">
+                <div class="p-2">
+                  <h6 class="fw-bold text-success mb-2 d-flex align-items-center gap-1.5">
+                    <i class="bi bi-check-circle-fill"></i> Phương án 1: Phê duyệt & Phát hành
+                  </h6>
+                  <p class="small text-muted mb-2">
+                    Hệ thống sẽ tự động tạo hóa đơn chính thức <strong>INV-2026-XXXX</strong> và gửi thông báo xanh thành công về cổng khách hàng.
+                  </p>
+                  <div class="mb-2">
+                    <label class="form-label small fw-semibold">Ghi chú kế toán khi duyệt (tùy chọn):</label>
+                    <input type="text" class="form-control form-control-sm" id="approveNotes" placeholder="Ví dụ: Đã đối soát hợp đồng số 2026/HĐKT">
+                  </div>
+                  <button type="button" class="btn btn-success w-100 rounded-pill py-2 fw-semibold shadow-sm" id="btnConfirmApprove">
+                    <i class="bi bi-check-lg me-1"></i> Duyệt & Phát hành Hóa đơn
+                  </button>
+                </div>
+              </div>
+
+              <!-- Reject Column -->
+              <div class="col-12 col-md-6">
+                <div class="p-2">
+                  <h6 class="fw-bold text-danger mb-2 d-flex align-items-center gap-1.5">
+                    <i class="bi bi-x-circle-fill"></i> Phương án 2: Không duyệt / Từ chối
+                  </h6>
+                  <p class="small text-muted mb-2">
+                    Hệ thống sẽ <strong>KHÔNG tạo hóa đơn</strong> và gửi thông báo đỏ dạng form về cổng khách hàng kèm lý do từ chối.
+                  </p>
+                  <div class="mb-2">
+                    <label class="form-label small fw-semibold">Lý do từ chối <span class="text-danger">*</span>:</label>
+                    <input type="text" class="form-control form-control-sm border-danger border-opacity-50" id="rejectReason" placeholder="Ví dụ: Cần đính kèm biên bản nghiệm thu trước">
+                  </div>
+                  <button type="button" class="btn btn-danger w-100 rounded-pill py-2 fw-semibold shadow-sm" id="btnConfirmReject">
+                    <i class="bi bi-x-lg me-1"></i> Từ chối / Không duyệt
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer border-top py-2 px-4 bg-light">
+        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

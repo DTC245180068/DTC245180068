@@ -1,0 +1,702 @@
+/* ====================================================================
+   BILLING MASTER - ENTERPRISE DESIGN SYSTEM & GLOBAL CSS
+   Hệ thống Quản lý Hóa đơn & Thanh toán (Đề 18)
+   Sinh viên: Vũ Hồng Dũng | MSSV: DTC245180068 | Lớp: KTPM K23B
+   ==================================================================== */
+
+/* --------------------------------------------------------------------
+   1. DESIGN TOKENS & CSS VARIABLES
+   -------------------------------------------------------------------- */
+:root {
+  /* Typography */
+  --bs-body-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bs-body-bg: #f8fafc;
+  --bs-body-color: #0f172a;
+
+  /* Primary Brand Colors (Indigo & Electric Blue) */
+  --primary-50: #eef2ff;
+  --primary-100: #e0e7ff;
+  --primary-200: #c7d2fe;
+  --primary-300: #a5b4fc;
+  --primary-400: #818cf8;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+  --primary-700: #4338ca;
+  --primary-800: #3730a3;
+  --primary-900: #312e81;
+
+  /* Semantic State Colors */
+  --success-bg: #dcfce7;
+  --success-text: #166534;
+  --success-border: #bbf7d0;
+  --success-main: #10b981;
+
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  --warning-border: #fde68a;
+  --warning-main: #f59e0b;
+
+  --danger-bg: #fee2e2;
+  --danger-text: #991b1b;
+  --danger-border: #fecaca;
+  --danger-main: #ef4444;
+
+  --info-bg: #e0f2fe;
+  --info-text: #075985;
+  --info-border: #bae6fd;
+  --info-main: #0284c7;
+
+  /* Neutral Surface Colors */
+  --surface-card: #ffffff;
+  --surface-border: #e2e8f0;
+  --surface-border-subtle: #f1f5f9;
+  --text-muted: #64748b;
+  --text-heading: #1e293b;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-glow-primary: 0 0 20px -3px rgba(79, 70, 229, 0.35);
+
+  /* Border Radii */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-pill: 50rem;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------
+   2. GLOBAL BASE & RESET
+   -------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--bs-body-font-family);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* --------------------------------------------------------------------
+   3. HEADER & NAVIGATION BAR
+   -------------------------------------------------------------------- */
+.navbar {
+  background: #0f172a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+  z-index: 1040 !important;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  transition: transform var(--transition-fast);
+}
+
+.navbar-brand:hover .brand-icon {
+  transform: rotate(-6deg) scale(1.05);
+}
+
+.navbar .nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  padding: 0.4rem 0.65rem !important;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.navbar .nav-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar .nav-link.active {
+  color: #ffffff !important;
+  background-color: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.navbar-nav {
+  flex-wrap: nowrap !important;
+}
+
+.navbar .btn,
+.navbar-brand,
+.navbar .dropdown-toggle {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+.nav-user-text {
+  max-width: 140px;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Sticky summary card on invoice create page (desktop only, leaves clearance below navbar) */
+@media (min-width: 992px) {
+  .invoice-summary-col {
+    align-self: flex-start !important;
+  }
+  .invoice-summary-card,
+  .sticky-summary-card {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 80px !important;
+    z-index: 100 !important;
+    max-height: calc(100vh - 95px);
+    overflow-y: auto;
+  }
+}
+
+/* --------------------------------------------------------------------
+   4. STATS & KPI CARDS
+   -------------------------------------------------------------------- */
+.stat-card {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  background: var(--surface-card);
+  padding: 1.35rem;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  transition: background-color var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card:hover::before {
+  background: var(--primary-500);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  transition: transform var(--transition-smooth);
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.08);
+}
+
+.stat-icon.green {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #15803d;
+  box-shadow: 0 4px 10px rgba(22, 101, 52, 0.12);
+}
+
+.stat-icon.blue {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #4338ca;
+  box-shadow: 0 4px 10px rgba(67, 56, 202, 0.12);
+}
+
+.stat-icon.amber {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #b45309;
+  box-shadow: 0 4px 10px rgba(180, 83, 9, 0.12);
+}
+
+.stat-icon.red {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #b91c1c;
+  box-shadow: 0 4px 10px rgba(185, 28, 28, 0.12);
+}
+
+/* --------------------------------------------------------------------
+   5. STATUS BADGES & TAGS
+   -------------------------------------------------------------------- */
+.badge-status {
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.72rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+}
+
+.badge-status.PAID {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.badge-status.SENT {
+  background-color: var(--primary-100);
+  color: var(--primary-800);
+  border: 1px solid var(--primary-200);
+}
+
+.badge-status.OVERDUE {
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
+}
+
+.badge-status.DRAFT {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.badge-status.CANCELLED {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+/* --------------------------------------------------------------------
+   6. CARDS & DATA TABLES
+   -------------------------------------------------------------------- */
+.card {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-smooth);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--surface-border);
+  padding: 1rem 1.35rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  display: flex;
+  align-items: center;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background-color: #f8fafc;
+  border-top: none;
+  border-bottom: 1px solid var(--surface-border);
+  padding: 0.85rem 1rem;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 0.95rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-hover tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* --------------------------------------------------------------------
+   7. LIVE SEARCH INPUTS & TOOLBARS
+   -------------------------------------------------------------------- */
+.search-box-group {
+  max-width: 380px;
+}
+
+.search-box-group .input-group-text {
+  background-color: #ffffff;
+  border: 1px solid var(--surface-border);
+  border-right: none;
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+}
+
+.search-box-group .form-control {
+  border: 1px solid var(--surface-border);
+  border-left: none;
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+  padding-right: 1.1rem;
+  font-size: 0.875rem;
+}
+
+.search-box-group .form-control:focus {
+  border-color: var(--surface-border);
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------
+   8. BUTTONS & INTERACTIVE STATES
+   -------------------------------------------------------------------- */
+.btn {
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 0.45rem 1rem;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-pill {
+  border-radius: var(--radius-pill);
+}
+
+/* Spin animation for refresh buttons */
+.spin {
+  animation: rotateSpin 0.75s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes rotateSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* --------------------------------------------------------------------
+   9. GLOBAL TOAST NOTIFICATIONS
+   -------------------------------------------------------------------- */
+.toast-custom {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  min-width: 340px;
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-custom .toast-header {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  background: transparent;
+  padding: 0.85rem 1.15rem;
+}
+
+.toast-custom .toast-body {
+  padding: 0.95rem 1.15rem;
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------
+   10. PRINTABLE INVOICE SHEET (HÓA ĐƠN GTGT CHUYÊN NGHIỆP)
+   -------------------------------------------------------------------- */
+#invoice-sheet {
+  background-color: #ffffff;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-md);
+}
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  .navbar, .footer, .btn, .no-print, .toast-container {
+    display: none !important;
+  }
+  #invoice-sheet {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .container-fluid {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+}
+
+/* --------------------------------------------------------------------
+   11. ENTERPRISE FOOTER STYLING
+   -------------------------------------------------------------------- */
+.app-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--surface-border);
+  background-color: #ffffff;
+}
+
+.footer-top {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.footer-links a {
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+}
+
+.footer-links a:hover {
+  color: var(--primary-600) !important;
+  transform: translateX(4px);
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.footer-badge-card {
+  transition: all var(--transition-fast);
+  background: #ffffff !important;
+}
+
+.footer-badge-card:hover {
+  border-color: var(--primary-300) !important;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.tracking-wide {
+  letter-spacing: 0.05em;
+}
+
+.back-to-top-btn {
+  transition: all var(--transition-fast);
+}
+
+.back-to-top-btn:hover {
+  background-color: var(--primary-600);
+  color: #ffffff;
+  border-color: var(--primary-600);
+}
+
+/* --------------------------------------------------------------------
+   12. CUSTOMER PORTAL & ELECTRONIC RECEIPT STYLING
+   -------------------------------------------------------------------- */
+.customer-portal-header {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%) !important;
+  border-left: 5px solid var(--primary-600) !important;
+}
+
+.receipt-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.receipt-stamp-badge {
+  z-index: 5;
+  user-select: none;
+  pointer-events: none;
+}
+
+.receipt-stamp-badge > div {
+  background: rgba(240, 253, 244, 0.85);
+  box-shadow: inset 0 0 0 2px #16a34a, 0 2px 8px rgba(22, 163, 74, 0.15);
+}
+
+#paymentMethodTabs .nav-link {
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  transition: all var(--transition-fast);
+}
+
+#paymentMethodTabs .nav-link.active {
+  color: #ffffff;
+  background-color: var(--primary-600);
+  border-color: var(--primary-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.table-danger-subtle {
+  background-color: rgba(239, 68, 68, 0.04) !important;
+}
+
+/* Customer Portal KPI Card Icons */
+.customer-kpi-icon {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  min-height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.customer-kpi-icon.danger {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.12);
+}
+
+.customer-kpi-icon.success {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #16a34a;
+  border: 1px solid #86efac;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.12);
+}
+
+.customer-kpi-icon.primary {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
+}
+
+.customer-kpi-icon.info {
+  background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+  color: #0891b2;
+  border: 1px solid #a5f3fc;
+  box-shadow: 0 2px 6px rgba(8, 145, 178, 0.12);
+}
+
+.customer-kpi-icon.secondary {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(71, 85, 105, 0.08);
+}
+

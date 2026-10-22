@@ -1,0 +1,125 @@
+services:
+  # ====================================================================
+  # 1. DATABASE - PostgreSQL (Hardened & Isolated)
+  # ====================================================================
+  postgres:
+    image: postgres:16
+    container_name: billing-postgres
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    cpus: 1.0
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-billing_db}
+      POSTGRES_USER: ${POSTGRES_USER:-billing_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-StrongBillingPass_2026!#}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - backend-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-billing_user} -d ${POSTGRES_DB:-billing_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ====================================================================
+  # 2. DATABASE MANAGEMENT TOOL - pgAdmin 4
+  # ====================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: billing-pgadmin
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 384m
+    cpus: 0.8
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@billing.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-AdminPass_2026!#}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_LISTEN_PORT: 8080
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "${PGADMIN_PORT:-5050}:8080"
+    networks:
+      - frontend-net
+      - backend-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ====================================================================
+  # 3. WEB APPLICATION - Node.js Billing Management System (Non-Root)
+  # ====================================================================
+  billing-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: billing-app
+    restart: unless-stopped
+    user: "10001:10001" # Hardening: Non-root user
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 384m
+    cpus: 1.0
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      APP_PORT: 3000
+      POSTGRES_DB: ${POSTGRES_DB:-billing_db}
+      POSTGRES_USER: ${POSTGRES_USER:-billing_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-StrongBillingPass_2026!#}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      LOG_DIR: /var/log/app
+    volumes:
+      - ./app:/usr/src/app
+      - /usr/src/app/node_modules
+      - app_logs:/var/log/app
+    networks:
+      - frontend-net
+      - backend-net
+      - monitoring-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ====================================================================
+  # 4. REVERSE PROXY - Nginx with Self-Signed SSL & Security Headers
+  # ====================================================================
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: billing-nginx
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    cpus: 0.5
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - nginx_logs:/var/log/nginx
+    networks:
+      - frontend-net
+    depends_on:
+      - billing-app
+
+
+networks:
+  frontend-net:
+    driver: bridge
+  backend-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  app_logs:
+  nginx_logs:

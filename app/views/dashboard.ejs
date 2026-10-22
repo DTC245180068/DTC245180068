@@ -1,0 +1,203 @@
+<%- include('partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1 d-flex align-items-center flex-wrap gap-2">
+      <span>Bảng điều khiển Trung tâm</span>
+      <% if (locals.currentUser) { %>
+        <span class="badge <%= locals.currentUser.role === 'ADMIN' ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-info-subtle text-info border border-info-subtle' %> fs-6 py-1 px-2">
+          <i class="bi <%= locals.currentUser.role === 'ADMIN' ? 'bi-shield-check' : 'bi-calculator' %> me-1"></i><%= locals.currentUser.role === 'ADMIN' ? 'Quản trị viên' : 'Kế toán viên' %>
+        </span>
+      <% } %>
+    </h3>
+    <p class="text-muted mb-0 small">Theo dõi doanh thu, trạng thái hóa đơn và dòng tiền thời gian thực</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" id="btn-refresh-dashboard" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm" title="Tải lại số liệu">
+      <i class="bi bi-arrow-clockwise me-1"></i> Làm mới
+    </button>
+    <% if (!locals.currentUser || locals.currentUser.role !== 'CUSTOMER') { %>
+    <a href="/invoices/create" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+      <i class="bi bi-file-earmark-plus me-1"></i> Lập hóa đơn mới
+    </a>
+    <% } %>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card d-flex align-items-center gap-3">
+      <div class="stat-icon green">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div>
+        <div class="text-muted small fw-medium">Tổng thực thu (Đã thanh toán)</div>
+        <div class="fs-4 fw-bold text-success">
+          <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue) %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card d-flex align-items-center gap-3">
+      <div class="stat-icon amber">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div>
+        <div class="text-muted small fw-medium">Chờ thanh toán & Quá hạn</div>
+        <div class="fs-4 fw-bold text-warning">
+          <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.pendingRevenue) %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card d-flex align-items-center gap-3">
+      <div class="stat-icon blue">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <div>
+        <div class="text-muted small fw-medium">Tổng số hóa đơn</div>
+        <div class="fs-4 fw-bold text-primary"><%= stats.totalInvoices %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="stat-card d-flex align-items-center gap-3">
+      <div class="stat-icon red">
+        <i class="bi bi-building"></i>
+      </div>
+      <div>
+        <div class="text-muted small fw-medium">Khách hàng / Đối tác</div>
+        <div class="fs-4 fw-bold text-dark"><%= stats.totalCustomers %></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+  <div class="col-12 col-lg-8">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-bar-chart-line me-2 text-primary"></i>Biểu đồ Doanh thu theo thời gian (Thực thu)</span>
+        <span class="badge bg-light text-muted border">Chỉ tính HĐ đã thu (PAID)</span>
+      </div>
+      <div class="card-body">
+        <div style="height: 280px;">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-pie-chart me-2 text-success"></i>Cơ cấu trạng thái Hóa đơn</span>
+      </div>
+      <div class="card-body">
+        <div style="height: 280px;">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Tables Row -->
+<div class="row g-4">
+  <div class="col-12 col-lg-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clock-history me-2 text-info"></i>Hóa đơn phát hành gần đây</span>
+        <a href="/invoices" class="btn btn-sm btn-link text-decoration-none">Xem tất cả &rarr;</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Số HĐ</th>
+              <th>Khách hàng</th>
+              <th>Tổng tiền</th>
+              <th>Trạng thái</th>
+              <th class="text-end">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (recentInvoices.length === 0) { %>
+              <tr><td colspan="5" class="text-center text-muted py-4">Chưa có hóa đơn nào</td></tr>
+            <% } else { %>
+              <% recentInvoices.forEach(inv => { %>
+                <tr>
+                  <td class="fw-bold font-monospace text-primary">
+                    <a href="/invoices/<%= inv.id %>" class="text-decoration-none"><%= inv.invoice_number %></a>
+                  </td>
+                  <td><%= inv.customer_name %></td>
+                  <td class="fw-semibold">
+                    <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(inv.total_amount) %>
+                  </td>
+                  <td>
+                    <span class="badge-status <%= inv.status %>">
+                      <%= inv.status === 'PAID' ? 'Đã thu' : (inv.status === 'SENT' ? 'Chờ thanh toán' : (inv.status === 'OVERDUE' ? 'Quá hạn' : inv.status)) %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <a href="/invoices/<%= inv.id %>" class="btn btn-outline-secondary btn-sm" title="Xem chi tiết">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-check-circle me-2 text-success"></i>Giao dịch thanh toán gần nhất</span>
+        <a href="/payments" class="btn btn-sm btn-link text-decoration-none">Xem tất cả &rarr;</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Mã GD</th>
+              <th>Hóa đơn</th>
+              <th>Số tiền</th>
+              <th>Ngày</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (recentPayments.length === 0) { %>
+              <tr><td colspan="4" class="text-center text-muted py-4">Chưa có giao dịch thanh toán</td></tr>
+            <% } else { %>
+              <% recentPayments.forEach(pay => { %>
+                <tr>
+                  <td class="font-monospace fw-semibold"><%= pay.payment_code %></td>
+                  <td class="font-monospace text-muted small"><%= pay.invoice_number %></td>
+                  <td class="fw-bold text-success">
+                    +<%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(pay.amount) %>
+                  </td>
+                  <td class="text-muted small">
+                    <%= new Date(pay.payment_date).toLocaleDateString('vi-VN') %>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
